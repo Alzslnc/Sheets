@@ -131,6 +131,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\AddButtons.cs" />
     <Compile Include="Base\F.cs" />
     <Compile Include="SheetsCreate\SheetsCreateAcadClass.cs" />
     <Compile Include="Base\BaseGeometryClass.cs" />

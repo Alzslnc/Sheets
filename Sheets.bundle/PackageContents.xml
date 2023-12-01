@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ApplicationPackage SchemaVersion="1.0" AppVersion="1.0"
+    ProductCode="{4DB634F3-DE90-478C-9F0A-36A6C9D74C33}"
+    Name="Sheets"
+>
+ 
+  <CompanyDetails
+    Name="zzz"
+    Email=""
+  />
+ 
+  <Components>
+    <ComponentEntry
+      ModuleName="./Contents/Sheets.dll"
+    />
+  </Components>
+</ApplicationPackage>

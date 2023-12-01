@@ -39,14 +39,14 @@
             this.Combo_Layers.FormattingEnabled = true;
             this.Combo_Layers.Location = new System.Drawing.Point(12, 12);
             this.Combo_Layers.Name = "Combo_Layers";
-            this.Combo_Layers.Size = new System.Drawing.Size(218, 24);
+            this.Combo_Layers.Size = new System.Drawing.Size(496, 24);
             this.Combo_Layers.TabIndex = 0;
             // 
             // Button_Ok
             // 
             this.Button_Ok.Location = new System.Drawing.Point(12, 42);
             this.Button_Ok.Name = "Button_Ok";
-            this.Button_Ok.Size = new System.Drawing.Size(106, 35);
+            this.Button_Ok.Size = new System.Drawing.Size(245, 68);
             this.Button_Ok.TabIndex = 1;
             this.Button_Ok.Text = "Ok";
             this.Button_Ok.UseVisualStyleBackColor = true;
@@ -54,9 +54,9 @@
             // 
             // Button_Cancel
             // 
-            this.Button_Cancel.Location = new System.Drawing.Point(124, 42);
+            this.Button_Cancel.Location = new System.Drawing.Point(263, 42);
             this.Button_Cancel.Name = "Button_Cancel";
-            this.Button_Cancel.Size = new System.Drawing.Size(106, 35);
+            this.Button_Cancel.Size = new System.Drawing.Size(245, 68);
             this.Button_Cancel.TabIndex = 2;
             this.Button_Cancel.Text = "Cancel";
             this.Button_Cancel.UseVisualStyleBackColor = true;
@@ -66,7 +66,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(240, 100);
+            this.ClientSize = new System.Drawing.Size(515, 119);
             this.Controls.Add(this.Button_Cancel);
             this.Controls.Add(this.Button_Ok);
             this.Controls.Add(this.Combo_Layers);
