@@ -9,12 +9,16 @@ namespace Sheets
     public class IniData
     {
         private readonly object Lock = new object();
-        public IniData(List<string> layers) 
-        { 
-            Layers = layers;
+        public IniData() 
+        {
+            ViewportLayersClass = new ViewportLayersClass();
+            if (!Settings.Default.NoBlock) BlockReferenceDataClass = new BlockReferenceDataClass();
         }
-        public List<string> Layers { get; set; } = new List<string>();
+        public ViewportLayersClass ViewportLayersClass { get; set; }
+        public BlockReferenceDataClass BlockReferenceDataClass { get; set; } = null;
         public string Layer { get; set; } = "";
+        public string Block { get; set; } = "";
+        public string AttributeTag { get; set; } = "";
         public Action Action 
         {
             get
@@ -33,6 +37,7 @@ namespace Sheets
             } 
         }
         private Action _Action = Action.none;
+        public PrefixType PrefixType { get; set; } = PrefixType.Manual;
     }
 
 

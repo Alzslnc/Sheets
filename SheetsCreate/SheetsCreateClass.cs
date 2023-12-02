@@ -7,7 +7,8 @@ namespace Sheets
     {
         public void Sheets_Create()
         {
-            IniData = new IniData(GetLayers());
+            ViewportLayersClass vlc = new ViewportLayersClass();
+            IniData = new IniData();
             Thread thread = new Thread(FormThread);
             thread.IsBackground = true;
             thread.Start();

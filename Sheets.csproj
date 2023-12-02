@@ -132,7 +132,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\AddButtons.cs" />
+    <Compile Include="Base\BaseBlockReferenceClass.cs" />
     <Compile Include="Base\F.cs" />
+    <Compile Include="Base\PositionAndIntersections.cs" />
+    <Compile Include="Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="SheetsCreate\DataClasses\BlockReferenceDataClass.cs" />
     <Compile Include="SheetsCreate\SheetsCreateAcadClass.cs" />
     <Compile Include="Base\BaseGeometryClass.cs" />
     <Compile Include="Base\BaseLayerClass.cs" />
@@ -144,8 +152,9 @@
     <Compile Include="Forms\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="SheetsCreate\IniData.cs" />
+    <Compile Include="SheetsCreate\DataClasses\IniData.cs" />
     <Compile Include="SheetsCreate\SheetsCreateClass.cs" />
+    <Compile Include="SheetsCreate\DataClasses\ViewportLayersClass.cs" />
     <Compile Include="Start.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -154,6 +163,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
