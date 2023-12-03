@@ -71,7 +71,7 @@ namespace Sheets
                     //создаем имя основного блока
                     string btrName = "_sheets_" + vl.Name;
 
-                    using (BlockTableRecord btr = GetBlock(btrName, tr, bt))
+                    using (BlockTableRecord btr = GetClearBlock(btrName, tr, bt))
                     {
                         //проходим по всем видовым экранам
                         foreach (ObjectId id in vl.Ids)
@@ -104,7 +104,7 @@ namespace Sheets
                                     tr.AddNewlyCreatedDBObject(c, true); 
 
                                     //получаем название видового экрана
-                                    string name = GetName(viewport, tr, bt);
+                                    string name = GetName(viewport, tr);
                                     //создаем переменную для ограничивающего штриховку круга
                                     double radius = 1;
                                     //создаем текст с названиеи и добавляем в бло
@@ -127,7 +127,7 @@ namespace Sheets
                                         string referenceName = btrName + "_" + name;
 
                                         //создаем блок для видового экрана
-                                        using (BlockTableRecord referenceBtr = GetBlock(referenceName, tr, bt))
+                                        using (BlockTableRecord referenceBtr = GetClearBlock(referenceName, tr, bt))
                                         {
                                             using (BlockReference bref = new BlockReference(Point3d.Origin, btr.Id))
                                             {
@@ -221,7 +221,7 @@ namespace Sheets
             }
         }
 
-        private BlockTableRecord GetBlock(string name, Transaction tr, BlockTable bt)
+        private BlockTableRecord GetClearBlock(string name, Transaction tr, BlockTable bt)
         {
             BlockTableRecord btr;
             if (bt.Has(name))
@@ -239,9 +239,8 @@ namespace Sheets
             return btr;   
         }
 
-
         #region GetName
-        private string GetName(Viewport viewport, Transaction tr, BlockTable bt)
+        private string GetName(Viewport viewport, Transaction tr)
         {
             string prefix = "";
             bool first = false;
@@ -274,11 +273,9 @@ namespace Sheets
                     }
                 case PrefixType.Attribute:
                     {                      
-                        if (Settings.Default.UsePrefix) prefix = Settings.Default.Prefix;
+                        if (Settings.Default.UsePrefix) prefix = Settings.Default.Prefix;                       
 
-                        if (!bt.Has(IniData.Block)) break;
-
-                        using (BlockTableRecord btr = tr.GetObject(viewport.OwnerId, OpenMode.ForRead) as BlockTableRecord)
+                        using (BlockTableRecord btr = tr.GetObject(viewport.OwnerId, OpenMode.ForWrite) as BlockTableRecord)
                         {
                             foreach (ObjectId id in btr)
                             {
@@ -298,31 +295,42 @@ namespace Sheets
                                 {
                                     using (BlockReference bref = tr.GetObject(id, OpenMode.ForRead, false, true) as BlockReference)
                                     {
-                                        if (!bref.BlockTableRecord.Equals(bt[IniData.Block])) continue;
                                         using (BlockTableRecord btr2 = tr.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord)
                                         {
-                                           
+                                            string dName = "";
+                                            if (bref.DynamicBlockTableRecord != null && bref.DynamicBlockTableRecord != ObjectId.Null)
+                                            {
+                                                using (BlockTableRecord btr3 = tr.GetObject(bref.DynamicBlockTableRecord, OpenMode.ForRead) as BlockTableRecord)
+                                                { 
+                                                    dName = btr3.Name;
+                                                }
+                                            }
+
+                                            if (!btr2.Name.Equals(IniData.Block) && !bref.Name.Equals(IniData.Block) && !dName.Equals(IniData.Block)) continue;
 
                                             Extents3d ex = new Extents3d();
 
-                                            using (DBObjectCollection collection = new DBObjectCollection())
+                                            if (bref.Bounds.HasValue) ex = bref.Bounds.Value;
+                                            else
                                             {
-                                                bref.Explode(collection);
-                                                foreach (DBObject dBObject in collection)
+                                                using (DBObjectCollection collection = new DBObjectCollection())
                                                 {
-                                                    if (dBObject is Curve curve && curve.Bounds.HasValue) ex.AddExtents(curve.Bounds.Value);
-                                                    dBObject?.Dispose();
+                                                    bref.Explode(collection);
+                                                    foreach (DBObject dBObject in collection)
+                                                    {
+                                                        if (dBObject is Curve curve && curve.Bounds.HasValue) ex.AddExtents(curve.Bounds.Value);
+                                                        dBObject?.Dispose();
+                                                    }
                                                 }
-                                            }
+                                            }                                        
 
-                                            using (Polyline poly = CreatePolyline(ex))
+                                            Polyline poly = CreatePolyline(ex);
+                                            if (BlockReferenceGetAttribute(bref, IniData.AttributeTag, out string attResult))
                                             {
-                                                if (BlockReferenceGetAttribute(bref, IniData.AttributeTag, out string attResult))
-                                                {
-                                                    brefData = new BrefData(id, poly, attResult, bref.OwnerId);
-                                                    BrefDatas.Add(brefData);
-                                                }
+                                                brefData = new BrefData(id, poly, attResult, bref.OwnerId);
+                                                BrefDatas.Add(brefData);
                                             }
+                                            else poly?.Dispose();
                                         }
                                     }
                                 }
@@ -370,6 +378,7 @@ namespace Sheets
             public string AttResult { get; private set; }
         }
         #endregion
+
         private IniData IniData { get; set; }
     }
 }
