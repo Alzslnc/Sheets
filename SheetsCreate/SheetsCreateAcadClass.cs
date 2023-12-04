@@ -220,7 +220,9 @@ namespace Sheets
                 tr.Commit();
             }
         }
-
+        /// <summary>
+        /// пробует получить экземпляр BlockTableRecord и очищает его, если не получен создает новый
+        /// </summary>
         private BlockTableRecord GetClearBlock(string name, Transaction tr, BlockTable bt)
         {
             BlockTableRecord btr;
@@ -231,8 +233,10 @@ namespace Sheets
             }                
             else
             {
-                btr = new BlockTableRecord();
-                btr.Name = name;
+                btr = new BlockTableRecord
+                {
+                    Name = name
+                };
                 bt.Add(btr);
                 tr.AddNewlyCreatedDBObject(btr, true);
             }
@@ -240,19 +244,28 @@ namespace Sheets
         }
 
         #region GetName
+        /// <summary>
+        /// формирует имя листа
+        /// </summary>
         private string GetName(Viewport viewport, Transaction tr)
         {
+            //префикс
             string prefix = "";
+            //примемять ли нумерацию к первому значению
             bool first = false;
+            //получение префикса в зависимости от выбранного типа
             switch (IniData.PrefixType)
-            {
+            {                
                 case PrefixType.Layer:
                     {
+                        //записываем в префикс выбранный слой
                         prefix = IniData.Layer;
                         break;
                     }
                 case PrefixType.List:
                     {
+                        //ищем название листа на котором находится видовой экран
+                        //и записываем в префикс его название
                         using (BlockTableRecord btr = tr.GetObject(viewport.OwnerId, OpenMode.ForRead) as BlockTableRecord)
                         {
                             if (btr.IsLayout)
@@ -267,36 +280,45 @@ namespace Sheets
                     }
                 case PrefixType.Manual:
                     {
+                        //записываем в префикс введенный вручную префикс
                         prefix = Settings.Default.Prefix;
                         first = true;
                         break;
                     }
                 case PrefixType.Attribute:
-                    {                      
+                    {      
+                        //тут префикс составной, если используем ручной записываем его
                         if (Settings.Default.UsePrefix) prefix = Settings.Default.Prefix;                       
 
+                        //ищем значение выбранного атрибута и прибвялем к префиксу
                         using (BlockTableRecord btr = tr.GetObject(viewport.OwnerId, OpenMode.ForWrite) as BlockTableRecord)
                         {
+                            //проходим по листу
                             foreach (ObjectId id in btr)
                             {
+                                //ищем блок, с выбранным названием
                                 if (!id.ObjectClass.Equals(RXClass.GetClass(typeof(BlockReference)))) continue;
 
+                                //создаем переменную с данными блока
                                 BrefData brefData = null;
                                 foreach (BrefData bref in BrefDatas)
                                 {
-                                    if (bref.OwnerId == viewport.OwnerId && bref.Id == id)
+                                    //если блок с таким Id уже проверялся загружаем в переменную его данные
+                                    if (bref.Id == id)
                                     { 
                                         brefData = bref;
                                         break;
                                     }
                                 }
-
+                                //если такого блока еще не было
                                 if (brefData == null)
                                 {
+                                    //получаем пространства блока
                                     using (BlockReference bref = tr.GetObject(id, OpenMode.ForRead, false, true) as BlockReference)
                                     {
                                         using (BlockTableRecord btr2 = tr.GetObject(bref.BlockTableRecord, OpenMode.ForRead) as BlockTableRecord)
                                         {
+                                            //переменная для имени динамического блока
                                             string dName = "";
                                             if (bref.DynamicBlockTableRecord != null && bref.DynamicBlockTableRecord != ObjectId.Null)
                                             {
@@ -305,14 +327,16 @@ namespace Sheets
                                                     dName = btr3.Name;
                                                 }
                                             }
-
+                                            //если хотя бы один из вариантов имени блока совпадает с выбранным блоком то продолжаем
                                             if (!btr2.Name.Equals(IniData.Block) && !bref.Name.Equals(IniData.Block) && !dName.Equals(IniData.Block)) continue;
 
+                                            //создаем переменную для границ
                                             Extents3d ex = new Extents3d();
-
+                                            //если границы определяются то записываем их
                                             if (bref.Bounds.HasValue) ex = bref.Bounds.Value;
                                             else
                                             {
+                                                //если нет то взрываем блок и получаем границы из объектов внутри блока
                                                 using (DBObjectCollection collection = new DBObjectCollection())
                                                 {
                                                     bref.Explode(collection);
@@ -323,20 +347,22 @@ namespace Sheets
                                                     }
                                                 }
                                             }                                        
-
+                                            //создаем контур блока
                                             Polyline poly = CreatePolyline(ex);
+                                            //если по выбранному тагу находится значение то создаем данные блока
                                             if (BlockReferenceGetAttribute(bref, IniData.AttributeTag, out string attResult))
                                             {
-                                                brefData = new BrefData(id, poly, attResult, bref.OwnerId);
+                                                brefData = new BrefData(id, poly, attResult);
                                                 BrefDatas.Add(brefData);
                                             }
                                             else poly?.Dispose();
                                         }
                                     }
                                 }
-
+                                //если блок не относится к нужным то продолжаем
                                 if (brefData == null) continue;
-
+                                //если блок нужный то проверяем находится ли видовой экран в области блока
+                                //если да то к префиксу добавляем значение выбранного атрибута
                                 PositionType position = viewport.CenterPoint.GetPositionType(brefData.Bound);
                                 if (position != PositionType.inner) continue;
                                 prefix += brefData.AttResult;
@@ -347,34 +373,49 @@ namespace Sheets
                     }
             }
 
+            //начано нумерации
             int i = 1;
             string name = prefix;            
 
+            //если префикс пустой или нумеровать надо независимо от префикса то прибавляем номер к префиксу
             if (string.IsNullOrEmpty(prefix)) name = i.ToString();
             else if (first) name += i.ToString();
 
+            //если такое имя уже используется то составляем имя со стелующим номером
             while (Names.Contains(name))
             { 
                 name = prefix + i++.ToString();
             }
             
+            //додбавляем имя в список
             Names.Add(name);
+            //возвращаем новое имя
             return name.Trim();            
         }
+        /// <summary>
+        /// список используемых имен
+        /// </summary>
         private List<string> Names { get; set; } = new List<string>();
+        /// <summary>
+        /// список данных блоков
+        /// </summary>
         private List<BrefData> BrefDatas { get; set; } = new List<BrefData>();
+        /// <summary>
+        /// данные блока
+        /// </summary>
         private class BrefData
         {
-            public BrefData(ObjectId id, Polyline bound, string attResult, ObjectId ownerId) 
+            public BrefData(ObjectId id, Polyline bound, string attResult) 
             { 
                 Bound = bound;
                 Id = id;
-                AttResult = attResult;
-                OwnerId = ownerId;
+                AttResult = attResult;           
             }
+            //границы
             public Polyline Bound { get; private set; }
-            public ObjectId Id { get; private set; }
-            public ObjectId OwnerId { get; private set; }
+            //ObjectId
+            public ObjectId Id { get; private set; }    
+            //значение выбранного атрибута
             public string AttResult { get; private set; }
         }
         #endregion

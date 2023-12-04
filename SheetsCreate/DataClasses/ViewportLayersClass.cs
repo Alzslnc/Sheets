@@ -1,7 +1,6 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Runtime;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 namespace Sheets
 {

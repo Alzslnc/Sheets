@@ -143,7 +143,6 @@
     <Compile Include="SheetsCreate\DataClasses\BlockReferenceDataClass.cs" />
     <Compile Include="SheetsCreate\SheetsCreateAcadClass.cs" />
     <Compile Include="Base\BaseGeometryClass.cs" />
-    <Compile Include="Base\BaseLayerClass.cs" />
     <Compile Include="Base\TextBounds.cs" />
     <Compile Include="Enums\Enums.cs" />
     <Compile Include="Forms\Form1.cs">
