@@ -72,6 +72,18 @@ namespace BaseFunction
             return angle;
         }
         /// <summary>
+        /// возвращает угол от оси X Autocad из точки pt1 по вектору pt2 (аналог polar из лиспа)
+        /// </summary>
+        /// <param name="pt1"></param>
+        /// <param name="pt2"></param>
+        /// <returns>угол в радианах</returns>
+        public static double GetAcadAngle(this Point3d pt1, Vector3d pt2)
+        {
+            double angle = Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
+            if (angle < 0) angle += Math.PI * 2;
+            return angle;
+        }
+        /// <summary>
         /// возвращает угол от оси X Autocad из точки pt1 на точку pt2 (аналог polar из лиспа)
         /// </summary>
         /// <param name="pt1"></param>

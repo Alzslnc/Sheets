@@ -10,6 +10,7 @@ using static BaseFunction.TextBounds;
 using System.Windows.Forms;
 using static BaseFunction.PositionAndIntersections;
 using static BaseFunction.BaseBlockReferenceClass;
+using Autodesk.AutoCAD.Colors;
 
 namespace Sheets
 {
@@ -95,11 +96,26 @@ namespace Sheets
                                 {
                                     //получаем контур трансформированный в модель
                                     c.TransformBy(Matrix3d.Scaling(1 / viewport.CustomScale, viewport.CenterPoint));
-                                    Vector3d s1 = Point3d.Origin - viewport.ViewTarget;
-                                    Vector3d s2 = viewport.ViewCenter.GetPoint3d(0) - viewport.CenterPoint;
-                                    s2 -= s1;
+                                            
+                                    //центр видового экрана
+                                    Point3d center = viewport.CenterPoint;
+
+                                    Vector3d s1 = viewport.ViewCenter.GetPoint3d(0) - viewport.CenterPoint;
+                                    c.TransformBy(Matrix3d.Displacement(s1));
+                                    center = center.TransformBy(Matrix3d.Displacement(s1));
+
+                                    if (viewport.TwistAngle != 0)
+                                    {
+                                        c.TransformBy(Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, Point3d.Origin));
+                                        center = center.TransformBy(Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, Point3d.Origin));
+                                    }
+
+                                    Vector3d s2 = Point3d.Origin - viewport.ViewTarget;
                                     c.TransformBy(Matrix3d.Displacement(s2));
+                                    center = center.TransformBy(Matrix3d.Displacement(s2));
+                                                               
                                     //добавляем контур в основной блок
+
                                     ObjectId cId = btr.AppendEntity(c);
                                     tr.AddNewlyCreatedDBObject(c, true); 
 
@@ -110,7 +126,7 @@ namespace Sheets
                                     //создаем текст с названиеи и добавляем в бло
                                     using (MText mText = new MText())
                                     {
-                                        mText.Location = viewport.CenterPoint.TransformBy(Matrix3d.Displacement(s2));
+                                        mText.Location = center;
                                         mText.Contents = name;
                                         mText.TextHeight = textheight;
                                         mText.Attachment = AttachmentPoint.MiddleCenter;
@@ -166,6 +182,12 @@ namespace Sheets
 
                                             using (BlockTableRecord ltr = tr.GetObject(viewport.OwnerId, OpenMode.ForWrite) as BlockTableRecord)
                                             {
+                                                Point3d location = viewport.CenterPoint;
+                                                Scale3d scale = blockScale;
+                                                Color color = null;
+                                                string layer = null;
+                                                ObjectId linetypeId = ObjectId.Null;
+                                                LineWeight lineWeight = LineWeight.ByLineWeightDefault;
                                                 foreach (ObjectId rid in ltr)
                                                 {
                                                     if (rid.ObjectClass.Equals(RXClass.GetClass(typeof(BlockReference))))
@@ -180,33 +202,39 @@ namespace Sheets
                                                                 bId = rid;
                                                             }
                                                         }
-                                                    }
+                                                    }    
                                                     if (bId != ObjectId.Null)
                                                     {
-                                                        if (Settings.Default.ScaleExist)
+                                                        using (BlockReference br = tr.GetObject(bId, OpenMode.ForWrite, false, true) as BlockReference)
                                                         {
-                                                            using (BlockReference br = tr.GetObject(bId, OpenMode.ForWrite, false, true) as BlockReference)
+                                                            if (!Settings.Default.ScaleExist)
                                                             {
-                                                                br.ScaleFactors = blockScale;
-                                                            }                                                        
+                                                                scale = br.ScaleFactors;
+                                                            }
+                                                            location = br.Position;
+                                                            color = br.Color;
+                                                            layer = br.Layer;
+                                                            linetypeId = br.LinetypeId;
+                                                            lineWeight = br.LineWeight;                                                           
+                                                            br?.Erase();
                                                         }
                                                         break;
                                                     }                                                       
                                                     
                                                 }
-                                                if (bId == ObjectId.Null)
+                                                using (BlockReference blockReference = new BlockReference(location, referenceBtr.Id))
                                                 {
-                                                    using (BlockReference blockReference = new BlockReference(viewport.CenterPoint, referenceBtr.Id))
-                                                    {
-                                                        ObjectId nbrId = ltr.AppendEntity(blockReference);
-                                                        tr.AddNewlyCreatedDBObject(blockReference, true);
-                                                        XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
+                                                    ObjectId nbrId = ltr.AppendEntity(blockReference);
+                                                    tr.AddNewlyCreatedDBObject(blockReference, true);
+                                                    XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
                                                         {
                                                             new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle),
                                                         }, true);
-                                                        blockReference.ScaleFactors = blockScale;
-                                                    }
-
+                                                    blockReference.ScaleFactors = scale;
+                                                    if (layer != null) blockReference.Layer = layer;
+                                                    if (color != null) blockReference.Color = color;
+                                                    if (lineWeight != LineWeight.ByLineWeightDefault) blockReference.LineWeight = lineWeight;
+                                                    if (linetypeId != ObjectId.Null) blockReference.LinetypeId = linetypeId;
                                                 }
                                             }
                                         }
