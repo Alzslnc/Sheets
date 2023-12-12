@@ -133,6 +133,8 @@
   <ItemGroup>
     <Compile Include="Base\AddButtons.cs" />
     <Compile Include="Base\BaseBlockReferenceClass.cs" />
+    <Compile Include="Base\BaseGetObjectClass.cs" />
+    <Compile Include="Base\BaseLayerClass.cs" />
     <Compile Include="Base\F.cs" />
     <Compile Include="Base\PositionAndIntersections.cs" />
     <Compile Include="Settings.Designer.cs">
@@ -141,6 +143,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="SheetsCreate\DataClasses\BlockReferenceDataClass.cs" />
+    <Compile Include="SheetsCreate\SheetLinkAcadClass.cs" />
     <Compile Include="SheetsCreate\SheetsCreateAcadClass.cs" />
     <Compile Include="Base\BaseGeometryClass.cs" />
     <Compile Include="Base\TextBounds.cs" />

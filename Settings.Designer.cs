@@ -190,5 +190,17 @@ namespace Sheets {
                 this["ScaleExist"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SelfNumberColor {
+            get {
+                return ((bool)(this["SelfNumberColor"]));
+            }
+            set {
+                this["SelfNumberColor"] = value;
+            }
+        }
     }
 }

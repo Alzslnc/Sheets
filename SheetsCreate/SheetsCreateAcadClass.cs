@@ -10,6 +10,7 @@ using static BaseFunction.TextBounds;
 using System.Windows.Forms;
 using static BaseFunction.PositionAndIntersections;
 using static BaseFunction.BaseBlockReferenceClass;
+using static BaseFunction.BaseLayerClass;
 using Autodesk.AutoCAD.Colors;
 
 namespace Sheets
@@ -29,6 +30,12 @@ namespace Sheets
             Scale3d blockScale = new Scale3d(Settings.Default.BlockScale);
 
             if (string.IsNullOrEmpty(IniData.Layer)) return;
+
+            //создаем слои и параметры
+            LayerNew("!_sheets_bound");
+            LayerNew("!_sheets_number");
+            LayerNew("!_sheets_hutch");
+            LayerChangeParametrs("!_sheets_hutch", 1);
 
             if (IniData.PrefixType == PrefixType.Manual || (IniData.PrefixType == PrefixType.Attribute && Settings.Default.UsePrefix))
             {
@@ -62,7 +69,7 @@ namespace Sheets
             {
                 MessageBox.Show("Очень редкая ошибка, по идее ее не должно быть");
                 return;
-            }             
+            }           
 
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
@@ -74,6 +81,12 @@ namespace Sheets
 
                     using (BlockTableRecord btr = GetClearBlock(btrName, tr, bt))
                     {
+                        //граница всех объектов
+                        Extents3d fullex = new Extents3d();
+
+                        //список Id всех блоков
+                        List<ObjectId> btrIds = new List<ObjectId>();
+
                         //проходим по всем видовым экранам
                         foreach (ObjectId id in vl.Ids)
                         {
@@ -113,8 +126,16 @@ namespace Sheets
                                     Vector3d s2 = Point3d.Origin - viewport.ViewTarget;
                                     c.TransformBy(Matrix3d.Displacement(s2));
                                     center = center.TransformBy(Matrix3d.Displacement(s2));
-                                                               
+                                         
+                                    //добавляем в границу
+
+                                    if (c.Bounds.HasValue) fullex.AddExtents(c.Bounds.Value);
+
                                     //добавляем контур в основной блок
+                                    c.Layer = "!_sheets_bound";
+                                    c.ColorIndex = 256;
+                                    c.LinetypeId = HostApplicationServices.WorkingDatabase.ByLayerLinetype;
+                                    c.LineWeight = LineWeight.ByLayer;                                    
 
                                     ObjectId cId = btr.AppendEntity(c);
                                     tr.AddNewlyCreatedDBObject(c, true); 
@@ -130,6 +151,12 @@ namespace Sheets
                                         mText.Contents = name;
                                         mText.TextHeight = textheight;
                                         mText.Attachment = AttachmentPoint.MiddleCenter;
+
+                                        mText.Layer = "!_sheets_number";
+                                        mText.ColorIndex = 256;
+                                        mText.LinetypeId = HostApplicationServices.WorkingDatabase.ByLayerLinetype;
+                                        mText.LineWeight = LineWeight.ByLayer;
+
                                         ObjectId tId = btr.AppendEntity(mText);
                                         tr.AddNewlyCreatedDBObject(mText, true);
                                         
@@ -145,6 +172,8 @@ namespace Sheets
                                         //создаем блок для видового экрана
                                         using (BlockTableRecord referenceBtr = GetClearBlock(referenceName, tr, bt))
                                         {
+                                            if (!btrIds.Contains(referenceBtr.Id)) btrIds.Add(referenceBtr.Id);
+
                                             using (BlockReference bref = new BlockReference(Point3d.Origin, btr.Id))
                                             {
                                                 referenceBtr.AppendEntity(bref);
@@ -153,19 +182,36 @@ namespace Sheets
 
                                             //получаем точку вставки блока, контур штриховки и границу текста                                         
                                             Curve curve = c.Clone() as Curve;
+                                            curve.Layer = "!_sheets_hutch";
+                                            curve.ColorIndex = 256;
+                                            curve.LinetypeId = HostApplicationServices.WorkingDatabase.ByLayerLinetype;
+                                            curve.LineWeight = LineWeight.ByLayer;
+
+                                            //копия текста
+                                            MText mtClone = mText.Clone() as MText;
+                                            if (Settings.Default.SelfNumberColor) mtClone.Layer = "!_sheets_hutch";                                       
+
                                             Circle circle = new Circle(mText.Location, Vector3d.ZAxis, radius);
+                                            circle.Layer = "!_sheets_hutch";
+                                            circle.ColorIndex = 256;
+                                            circle.LinetypeId = HostApplicationServices.WorkingDatabase.ByLayerLinetype;
+                                            circle.LineWeight = LineWeight.ByLayer;
+                                            //referenceBtr.Origin = mText.Location;
 
-                                            referenceBtr.Origin = mText.Location;
-
+                                            referenceBtr.AppendEntity(mtClone);
+                                            tr.AddNewlyCreatedDBObject(mtClone, true);
                                             ObjectId curveId = referenceBtr.AppendEntity(curve);
                                             tr.AddNewlyCreatedDBObject(curve, true);
                                             ObjectId circleId = referenceBtr.AppendEntity(circle);
                                             tr.AddNewlyCreatedDBObject(circle, true);
                                             using (Hatch h = new Hatch())
-                                            {
-                                                h.ColorIndex = 1;
+                                            {                                               
                                                 h.PatternScale = hatchScale;
                                                 h.SetHatchPattern(HatchPatternType.PreDefined, "ANSI32");
+                                                h.Layer = "!_sheets_hutch";
+                                                h.ColorIndex = 256;                                                
+                                                h.LineWeight = LineWeight.ByLayer;
+
                                                 referenceBtr.AppendEntity(h);
                                                 tr.AddNewlyCreatedDBObject(h, true);
                                                 using (ObjectIdCollection coll = new ObjectIdCollection { curveId })
@@ -178,7 +224,11 @@ namespace Sheets
                                                 }
                                             }
 
-                                            ObjectId bId = ObjectId.Null;
+                                            curve?.Dispose();
+                                            mtClone?.Dispose();
+                                            circle?.Dispose();
+
+                                           
 
                                             using (BlockTableRecord ltr = tr.GetObject(viewport.OwnerId, OpenMode.ForWrite) as BlockTableRecord)
                                             {
@@ -188,8 +238,12 @@ namespace Sheets
                                                 string layer = null;
                                                 ObjectId linetypeId = ObjectId.Null;
                                                 LineWeight lineWeight = LineWeight.ByLineWeightDefault;
+                                                bool exist = false;
+                                                List<ObjectId> created = new List<ObjectId>();
                                                 foreach (ObjectId rid in ltr)
                                                 {
+                                                    ObjectId bId = ObjectId.Null;
+                                                    if (rid.IsErased || created.Contains(rid)) continue;
                                                     if (rid.ObjectClass.Equals(RXClass.GetClass(typeof(BlockReference))))
                                                     {
                                                         ResultBuffer typedValues = XDataGet(rid, "SheetsOnLayouts");
@@ -205,6 +259,13 @@ namespace Sheets
                                                     }    
                                                     if (bId != ObjectId.Null)
                                                     {
+                                                        exist = true;
+                                                        location = viewport.CenterPoint;
+                                                        scale = blockScale;
+                                                        color = null;
+                                                        layer = null;
+                                                        linetypeId = ObjectId.Null;
+                                                        lineWeight = LineWeight.ByLineWeightDefault;
                                                         using (BlockReference br = tr.GetObject(bId, OpenMode.ForWrite, false, true) as BlockReference)
                                                         {
                                                             if (!Settings.Default.ScaleExist)
@@ -218,23 +279,37 @@ namespace Sheets
                                                             lineWeight = br.LineWeight;                                                           
                                                             br?.Erase();
                                                         }
-                                                        break;
-                                                    }                                                       
-                                                    
-                                                }
-                                                using (BlockReference blockReference = new BlockReference(location, referenceBtr.Id))
-                                                {
-                                                    ObjectId nbrId = ltr.AppendEntity(blockReference);
-                                                    tr.AddNewlyCreatedDBObject(blockReference, true);
-                                                    XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
+                                                        using (BlockReference blockReference = new BlockReference(location, referenceBtr.Id))
                                                         {
-                                                            new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle),
-                                                        }, true);
-                                                    blockReference.ScaleFactors = scale;
-                                                    if (layer != null) blockReference.Layer = layer;
-                                                    if (color != null) blockReference.Color = color;
-                                                    if (lineWeight != LineWeight.ByLineWeightDefault) blockReference.LineWeight = lineWeight;
-                                                    if (linetypeId != ObjectId.Null) blockReference.LinetypeId = linetypeId;
+                                                            ObjectId nbrId = ltr.AppendEntity(blockReference);
+                                                            created.Add(nbrId);
+                                                            tr.AddNewlyCreatedDBObject(blockReference, true);
+                                                            XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
+                                                            {
+                                                                new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle),
+                                                            }, true);
+                                                            blockReference.ScaleFactors = scale;
+                                                            if (layer != null) blockReference.Layer = layer;
+                                                            if (color != null) blockReference.Color = color;
+                                                            if (lineWeight != LineWeight.ByLineWeightDefault) blockReference.LineWeight = lineWeight;
+                                                            if (linetypeId != ObjectId.Null) blockReference.LinetypeId = linetypeId;
+                                                            
+                                                        }
+                                                    } 
+                                                }
+                                                if (!exist)
+                                                {
+                                                    using (BlockReference blockReference = new BlockReference(location, referenceBtr.Id))
+                                                    {
+                                                        ObjectId nbrId = ltr.AppendEntity(blockReference);
+                                                        created.Add(nbrId);
+                                                        tr.AddNewlyCreatedDBObject(blockReference, true);
+                                                        XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
+                                                            {
+                                                                new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle),
+                                                            }, true);
+                                                        blockReference.ScaleFactors = scale;                                                 
+                                                    }
                                                 }
                                             }
                                         }
@@ -242,6 +317,28 @@ namespace Sheets
                                 }
                                 c?.Dispose();
                             }
+                        }
+
+                        //получаем центр всех объектов
+                        Point3d vcenter = fullex.MinPoint + (fullex.MaxPoint - fullex.MinPoint) * 0.5;
+                                               
+                        foreach (ObjectId id in btrIds)
+                        {
+                            using (BlockTableRecord referenceBtr = tr.GetObject(id, OpenMode.ForWrite) as BlockTableRecord)
+                            {
+                                if (!referenceBtr.Origin.IsEqualTo(Point3d.Origin))
+                                { 
+                                    vcenter = referenceBtr.Origin;
+                                    break;
+                                }                                  
+                            }
+                        }
+                        foreach (ObjectId id in btrIds)
+                        {
+                            using (BlockTableRecord referenceBtr = tr.GetObject(id, OpenMode.ForWrite) as BlockTableRecord)
+                            {                                
+                                referenceBtr.Origin = vcenter;                            
+                            }                        
                         }
                     }  
                 }        

@@ -34,6 +34,7 @@ namespace Sheets
             TextBox_BlockScale.Text = Settings.Default.BlockScale.ToString();
             Check_NoBlock.Checked = Settings.Default.NoBlock;
             Check_ScaleExist.Checked = Settings.Default.ScaleExist;
+            Check_SelfNumberColor.Checked = Settings.Default.SelfNumberColor;
 
             if (Settings.Default.RadioAttribute)
             {
@@ -93,12 +94,7 @@ namespace Sheets
             } 
         }
 
-        #region clicks
-        private void Check_NoBlock_CheckedChanged(object sender, EventArgs e)
-        {
-            Settings.Default.NoBlock = Check_NoBlock.Checked;
-            Settings.Default.Save();
-        }
+        #region clicks       
         private void Combo_BlockReference_SelectedIndexChanged(object sender, EventArgs e)
         {
             Settings.Default.LastBlock = Combo_BlockReference.Text;
@@ -211,6 +207,8 @@ namespace Sheets
                 Settings.Default.RadioAttribute = !Radio_Manual.Checked;               
             }
 
+            Settings.Default.NoBlock = Check_NoBlock.Checked;
+            Settings.Default.SelfNumberColor = Check_SelfNumberColor.Checked;
             Settings.Default.Save();
             DialogResult = DialogResult.OK;
             Close();

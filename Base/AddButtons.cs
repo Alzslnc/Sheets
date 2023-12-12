@@ -16,7 +16,11 @@ namespace karto
         //(string, string, string) команда / название / описание
         private static List<(string, List<(string, string, string)>)> commands = new List<(string, List<(string, string, string)>)>()
         {
-             ("Штампы", new List<(string, string, string)> { ("Sheets_Create", "Схема листов", "Создает или обоновляет(если уже создана) схему листов")})
+             ("Штампы", new List<(string, string, string)> 
+             { 
+                 ("Sheets_Create", "Схема листов", "Создает или обоновляет(если уже создана) схему листов"),
+                 ("Sheets_Link", "Связать с ВЭ", "Связывает выбранный блок с видовым экраном, после обновления командой \"Схема листов\" изменит блок в соответствии со связанным видовым экраном")
+             })
         };
         /// <summary>
         /// Инициализация

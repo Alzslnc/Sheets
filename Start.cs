@@ -9,6 +9,12 @@ namespace Sheets
         {
             SheetsCreateClass sheetsCreateClass = new SheetsCreateClass();
             sheetsCreateClass.Sheets_Create();
-        }   
+        }
+        [CommandMethod("Sheets_Link")]
+        public void Sheets_Link_Command()
+        {
+            SheetLinkAcadClass sheetLinks = new SheetLinkAcadClass();
+            sheetLinks.SheetLink();
+        }
     }
 }

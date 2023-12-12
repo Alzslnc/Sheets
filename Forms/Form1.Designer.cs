@@ -54,6 +54,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.TextBox_BlockScale = new System.Windows.Forms.TextBox();
             this.Check_ScaleExist = new System.Windows.Forms.CheckBox();
+            this.Check_SelfNumberColor = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -290,13 +291,12 @@
             // Check_NoBlock
             // 
             this.Check_NoBlock.AutoSize = true;
-            this.Check_NoBlock.Location = new System.Drawing.Point(255, 75);
+            this.Check_NoBlock.Location = new System.Drawing.Point(271, 72);
             this.Check_NoBlock.Name = "Check_NoBlock";
             this.Check_NoBlock.Size = new System.Drawing.Size(188, 36);
             this.Check_NoBlock.TabIndex = 18;
             this.Check_NoBlock.Text = "Не использовать блоки\r\n(Требуется перезапуск)";
-            this.Check_NoBlock.UseVisualStyleBackColor = true;
-            this.Check_NoBlock.CheckedChanged += new System.EventHandler(this.Check_NoBlock_CheckedChanged);
+            this.Check_NoBlock.UseVisualStyleBackColor = true;         
             // 
             // label4
             // 
@@ -319,18 +319,29 @@
             // Check_ScaleExist
             // 
             this.Check_ScaleExist.AutoSize = true;
-            this.Check_ScaleExist.Location = new System.Drawing.Point(211, 128);
+            this.Check_ScaleExist.Location = new System.Drawing.Point(211, 111);
             this.Check_ScaleExist.Name = "Check_ScaleExist";
             this.Check_ScaleExist.Size = new System.Drawing.Size(248, 20);
             this.Check_ScaleExist.TabIndex = 23;
             this.Check_ScaleExist.Text = "Масштабировать существующие?";
             this.Check_ScaleExist.UseVisualStyleBackColor = true;
             // 
+            // Check_SelfNumberColor
+            // 
+            this.Check_SelfNumberColor.AutoSize = true;
+            this.Check_SelfNumberColor.Location = new System.Drawing.Point(211, 137);
+            this.Check_SelfNumberColor.Name = "Check_SelfNumberColor";
+            this.Check_SelfNumberColor.Size = new System.Drawing.Size(239, 20);
+            this.Check_SelfNumberColor.TabIndex = 24;
+            this.Check_SelfNumberColor.Text = "Свой номер по цвету штриховки";
+            this.Check_SelfNumberColor.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 449);
+            this.Controls.Add(this.Check_SelfNumberColor);
             this.Controls.Add(this.Check_ScaleExist);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.TextBox_BlockScale);
@@ -387,5 +398,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox TextBox_BlockScale;
         private System.Windows.Forms.CheckBox Check_ScaleExist;
+        private System.Windows.Forms.CheckBox Check_SelfNumberColor;
     }
 }
