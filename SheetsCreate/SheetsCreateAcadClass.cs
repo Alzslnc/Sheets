@@ -247,12 +247,14 @@ namespace Sheets
                                                     if (rid.ObjectClass.Equals(RXClass.GetClass(typeof(BlockReference))))
                                                     {
                                                         ResultBuffer typedValues = XDataGet(rid, "SheetsOnLayouts");
+                                                        
                                                         if (typedValues == null) continue;
                                                         foreach (TypedValue tv in typedValues)
                                                         {
                                                             if (tv.TypeCode == Convert.ToInt32(DxfCode.ExtendedDataHandle))
                                                             {
-                                                                if (!viewport.Handle.Equals(new Handle(Convert.ToInt64(tv.Value.ToString(), 16)))) break;
+                                                                Handle h = new Handle(Convert.ToInt64(tv.Value.ToString(), 16));
+                                                                if (!viewport.Handle.Equals(h)) break;
                                                                 bId = rid;
                                                             }
                                                         }
