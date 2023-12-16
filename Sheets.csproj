@@ -137,6 +137,13 @@
     <Compile Include="Base\BaseLayerClass.cs" />
     <Compile Include="Base\F.cs" />
     <Compile Include="Base\PositionAndIntersections.cs" />
+    <Compile Include="Forms\LayoutCreateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LayoutCreateForm.Designer.cs">
+      <DependentUpon>LayoutCreateForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LayoutCreate\LayoutCreateAcadClass.cs" />
     <Compile Include="Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -148,11 +155,11 @@
     <Compile Include="Base\BaseGeometryClass.cs" />
     <Compile Include="Base\TextBounds.cs" />
     <Compile Include="Enums\Enums.cs" />
-    <Compile Include="Forms\Form1.cs">
+    <Compile Include="Forms\SheetsCreateForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\SheetsCreateForm.Designer.cs">
+      <DependentUpon>SheetsCreateForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SheetsCreate\DataClasses\IniData.cs" />
     <Compile Include="SheetsCreate\SheetsCreateClass.cs" />
@@ -161,8 +168,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\LayoutCreateForm.resx">
+      <DependentUpon>LayoutCreateForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SheetsCreateForm.resx">
+      <DependentUpon>SheetsCreateForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

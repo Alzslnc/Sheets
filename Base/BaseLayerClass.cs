@@ -8,6 +8,26 @@ namespace BaseFunction
 {
     public static class BaseLayerClass
     {
+        public static List<string> GetLayerNames()
+        {
+            List<string> result = new List<string>();
+            using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
+            {           
+                using (LayerTable lt = tr.GetObject(HostApplicationServices.WorkingDatabase.LayerTableId, OpenMode.ForRead) as LayerTable)
+                {
+                    foreach (ObjectId id in lt)
+                    {
+                        using (LayerTableRecord layer = tr.GetObject(id, OpenMode.ForRead, false, true) as LayerTableRecord)
+                        {
+                           result.Add(layer.Name);
+                        }
+                    }
+                }
+                tr.Commit();
+            }
+            return result;
+        }
+
         /// <summary>
         /// Изменяет параметры существующего слоя
         /// </summary>

@@ -1,6 +1,6 @@
 ﻿namespace Sheets
 {
-    partial class Form1
+    partial class SheetsCreateForm
     {
         /// <summary>
         /// Required designer variable.
@@ -296,7 +296,7 @@
             this.Check_NoBlock.Size = new System.Drawing.Size(188, 36);
             this.Check_NoBlock.TabIndex = 18;
             this.Check_NoBlock.Text = "Не использовать блоки\r\n(Требуется перезапуск)";
-            this.Check_NoBlock.UseVisualStyleBackColor = true;         
+            this.Check_NoBlock.UseVisualStyleBackColor = true;
             // 
             // label4
             // 
@@ -336,7 +336,7 @@
             this.Check_SelfNumberColor.Text = "Свой номер по цвету штриховки";
             this.Check_SelfNumberColor.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // SheetsCreateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -361,7 +361,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(500, 500);
-            this.Name = "Form1";
+            this.Name = "SheetsCreateForm";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

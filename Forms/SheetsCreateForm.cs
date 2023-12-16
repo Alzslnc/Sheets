@@ -4,10 +4,10 @@ using System.Windows.Forms;
 
 namespace Sheets
 {
-    public partial class Form1 : Form
+    public partial class SheetsCreateForm : Form
     {
         private readonly IniData IniData;
-        public Form1(IniData data)
+        public SheetsCreateForm(IniData data)
         {
             InitializeComponent();
             IniData = data;

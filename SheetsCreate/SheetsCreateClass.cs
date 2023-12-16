@@ -17,7 +17,7 @@ namespace Sheets
         }       
         private void FormThread()
         { 
-            Form1 form = new Form1(IniData);
+            SheetsCreateForm form = new SheetsCreateForm(IniData);
             form.ShowDialog();
             if (form.DialogResult == System.Windows.Forms.DialogResult.OK) IniData.Action = Action.Ok;
             else IniData.Action = Action.Cancel;

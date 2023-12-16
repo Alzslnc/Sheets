@@ -16,5 +16,11 @@ namespace Sheets
             SheetLinkAcadClass sheetLinks = new SheetLinkAcadClass();
             sheetLinks.SheetLink();
         }
+        [CommandMethod("Layout_Create")]
+        public void Layout_Create_Command()
+        {
+            LayoutCreateAcadClass layoutCreateAcadClass = new LayoutCreateAcadClass();
+            layoutCreateAcadClass.Start();
+        }
     }
 }
