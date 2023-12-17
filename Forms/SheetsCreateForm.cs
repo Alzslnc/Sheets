@@ -10,6 +10,7 @@ namespace Sheets
         public SheetsCreateForm(IniData data)
         {
             InitializeComponent();
+            StartPosition = FormStartPosition.CenterScreen;
             IniData = data;
             SetStartData();          
         }

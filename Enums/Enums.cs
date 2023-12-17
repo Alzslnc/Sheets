@@ -5,6 +5,7 @@
         none,
         Ok, 
         Cancel,   
+        NLC,
     }
 
     public enum PrefixType

@@ -10,7 +10,6 @@ using static BaseFunction.BaseLayerClass;
 using static BaseFunction.F;
 using static BaseFunction.TextBounds;
 using static BaseFunction.PositionAndIntersections;
-using System.Runtime.ConstrainedExecution;
 
 
 namespace Sheets
@@ -19,7 +18,7 @@ namespace Sheets
     {
         public void Start()
         {
-            double pp = 0;
+            
 
             if (!TryGetobjectId(out ObjectId PolyId, typeof(Polyline), "Выберите отображаемую область")) return;
 
@@ -72,11 +71,22 @@ namespace Sheets
             ActionClass = new ActionClass(LayoutNames);
 
             Thread thread = new Thread(ThreadForm);
-            thread.Start(); 
+            thread.Start();
 
-            while(ActionClass.Action == Action.none) Thread.Sleep(200);
+            while (ActionClass.Action == Action.none || ActionClass.Action == Action.NLC)
+            {
+                if (ActionClass.Action == Action.NLC)
+                {
+                    ActionClass.CheckLoName();
+                    ActionClass.Action = Action.none;
+                }
+                else Thread.Sleep(200);
+             
+            } 
 
             if (ActionClass.Action != Action.Ok) return;
+
+            double overlap = Settings.Default.LC_Overlap / 100;
 
             LayoutManager.Current.CurrentLayout = ActionClass.Result;
 
@@ -128,35 +138,38 @@ namespace Sheets
                         c = CreatePolyline(ex);
                     }
                     if (c != null)
-                    {         
+                    {
                         //получаем контур трансформированный в модель
                         c.TransformBy(Matrix3d.Scaling(1 / viewport.CustomScale, viewport.CenterPoint));
+                        //точка центра
+                        Point3d centrPoint = viewport.ViewCenter.GetPoint3d(0);                        
 
-                        t1transform = viewport.ViewCenter.GetPoint3d(0) - c.StartPoint;
-
+                        //размеры видового экрана в модели
                         if (c.Bounds.HasValue)
                         { 
                             vpx = c.Bounds.Value.MaxPoint.X - c.Bounds.Value.MinPoint.X;
                             vpy = c.Bounds.Value.MaxPoint.Y - c.Bounds.Value.MinPoint.Y;
-                        }
+                        }                        
 
                         Vector3d s1 = viewport.ViewCenter.GetPoint3d(0) - viewport.CenterPoint;                       
                         c.TransformBy(Matrix3d.Displacement(s1));
-                        cStart.TransformBy(Matrix3d.Displacement(s1));
+                        cStart.TransformBy(Matrix3d.Displacement(s1));        
 
                         if (viewport.TwistAngle != 0)
                         {
-                            angle = viewport.TwistAngle;
-                            //t1transform = t1transform.TransformBy(Matrix3d.Rotation(-angle, Vector3d.ZAxis, viewport.ViewCenter.GetPoint3d(0)));
-                            c.TransformBy(Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, Point3d.Origin));
-                            cStart.TransformBy(Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, Point3d.Origin));
+                            angle = viewport.TwistAngle;                           
+                            c.TransformBy(Matrix3d.Rotation(-angle, Vector3d.ZAxis, Point3d.Origin));
+                            centrPoint = centrPoint.TransformBy(Matrix3d.Rotation(-angle, Vector3d.ZAxis, Point3d.Origin));
+                            cStart.TransformBy(Matrix3d.Rotation(-angle, Vector3d.ZAxis, Point3d.Origin));
                         }
+                        
+                        Vector3d s2 = Point3d.Origin - viewport.ViewTarget;                        
 
-                        Vector3d s2 = Point3d.Origin - viewport.ViewTarget;
                         c.TransformBy(Matrix3d.Displacement(s2));
                         cStart.TransformBy(Matrix3d.Displacement(s2));
+                        centrPoint = centrPoint.TransformBy(Matrix3d.Displacement(s2));
 
-                       
+                        t1transform = centrPoint - c.StartPoint;
                     }     
                 }
                 if (c == null || baseViewportId == ObjectId.Null || !c.Bounds.HasValue)
@@ -223,33 +236,40 @@ namespace Sheets
                         }
                         if (vc.IsDisposed)
                         {
-                            curry += vpy * (1 - pp) * 0.2;
+                            curry += vpy * (1 - overlap) * 0.2;
                             if (curry > maxy)
                             {
                                 curry = 0;
-                                currx += vpx * (1 - pp);
+                                currx += vpx * (1 - overlap);
                             }
                         }
                         else
                         {
                             futureViewports.Add(vc);
-                            curry += vpy * (1 - pp);
+                            curry += vpy * (1 - overlap);
                             if (curry > maxy)
                             {
                                 curry = 0;
-                                currx += vpx * (1 - pp);
+                                currx += vpx * (1 - overlap);
                             }
                         }
                     }
                 }
+                               
+                string loIName = Settings.Default.LC_LayoutName;
+                string loname =loIName;
+                int k = 0;
+                while (LayoutNames.Contains(loname+ "(1)") || LayoutNames.Contains(loname + "(2)"))
+                {
+                    k++;
+                    loname = loIName + "_" + k;
+                }
 
-                string loname = "NVS" + i;
-                int k = 1;
+                k = 1;
                 string cloname = loname + "(" + k + ")"; 
-
+               
                 using (LayoutManager lm = LayoutManager.Current)
                 {
-
                     foreach (Curve cur in futureViewports)
                     {
                         while (LayoutNames.Contains(cloname))
@@ -258,8 +278,9 @@ namespace Sheets
                             cloname = loname + "(" + k + ")";
                         }
                         LayoutNames.Add(cloname);
-                        lm.CloneLayout(ActionClass.Result, cloname, lm.LayoutCount);
 
+                        lm.CloneLayout(ActionClass.Result, cloname, lm.LayoutCount);
+                       
                         using (Layout newLo = tr.GetObject(lm.GetLayoutId(cloname), OpenMode.ForRead) as Layout)
                         {
                             using (BlockTableRecord newLobtr = tr.GetObject(newLo.BlockTableRecordId, OpenMode.ForRead) as BlockTableRecord)
@@ -272,10 +293,12 @@ namespace Sheets
                                         XDataClear(id, "LayoutCreate", null);
 
                                         using (Viewport newVp = tr.GetObject(id, OpenMode.ForWrite) as Viewport)
-                                        {
-                                            Point2d point = vclone.ViewCenter;
+                                        {                                          
                                             newVp.Layer = name;
-                                            newVp.ViewCenter = (cur.StartPoint + t1transform).GetPoint2d();
+                                            newVp.ViewCenter = (cur.StartPoint + t1transform).GetPoint2d();      
+
+                                            newVp.ViewCenter = (newVp.ViewCenter.GetPoint3d(0) + (Point3d.Origin - newVp.ViewTarget)).GetPoint2d();
+                                            newVp.ViewCenter = newVp.ViewCenter.TransformBy(Matrix2d.Rotation(angle, Point2d.Origin));      
                                         }
                                         break;
                                     }
@@ -288,14 +311,14 @@ namespace Sheets
                 using (BlockTableRecord ms = tr.GetObject(SymbolUtilityServices.GetBlockModelSpaceId(HostApplicationServices.WorkingDatabase), OpenMode.ForWrite) as BlockTableRecord)
                 {
                     foreach (Curve cur in futureViewports)
-                    { 
+                    {
+                        cur.Layer = name;
                         ms.AppendEntity(cur);
-                        tr.AddNewlyCreatedDBObject(cur, true);
-                    
-                    }                
+                        tr.AddNewlyCreatedDBObject(cur, true);                    
+                    }                  
                 }
 
-                    XDataClear(baseViewportId, "LayoutCreate", null);
+                XDataClear(baseViewportId, "LayoutCreate", null);
 
                 c?.Dispose();
                 tr.Commit();
@@ -344,14 +367,41 @@ namespace Sheets
         }       
     }
     public class ActionClass
-    {
+    {     
         protected readonly object Lock = new object();
         public ActionClass(List<string> layoutNames)
         {
             LayoutNames = layoutNames;         
         }
+
+        public void CheckLoName()
+        {
+            if (string.IsNullOrEmpty(LNCName)) LNC = false;
+            int i = 0;
+            string nname = LNCName;
+            while (LayoutNames.Contains(nname))
+            {
+                i++;
+                nname = LNCName + "_" + i;
+            }
+            try
+            {
+                using (LayoutManager lm = LayoutManager.Current)
+                {
+                    lm.CreateLayout(nname);
+                    lm.DeleteLayout(nname);
+                    LNC = true;
+                }
+            }
+            catch
+            {
+                LNC = false;
+            }
+        }
         public List<string> LayoutNames { get; set; } = new List<string>();
+        public string LNCName { get; set; } = string.Empty;
         public string Result { get; set; } = string.Empty;
+        public bool LNC { get; set; } = false;
         public Action Action
         {
             get

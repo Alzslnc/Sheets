@@ -133,6 +133,7 @@
   <ItemGroup>
     <Compile Include="Base\AddButtons.cs" />
     <Compile Include="Base\BaseBlockReferenceClass.cs" />
+    <Compile Include="Base\BaseFormClass.cs" />
     <Compile Include="Base\BaseGetObjectClass.cs" />
     <Compile Include="Base\BaseLayerClass.cs" />
     <Compile Include="Base\F.cs" />

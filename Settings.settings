@@ -47,5 +47,11 @@
     <Setting Name="SelfNumberColor" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="LC_Overlap" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="LC_LayoutName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">NewLayout</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

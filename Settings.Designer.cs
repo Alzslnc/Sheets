@@ -202,5 +202,29 @@ namespace Sheets {
                 this["SelfNumberColor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double LC_Overlap {
+            get {
+                return ((double)(this["LC_Overlap"]));
+            }
+            set {
+                this["LC_Overlap"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("NewLayout")]
+        public string LC_LayoutName {
+            get {
+                return ((string)(this["LC_LayoutName"]));
+            }
+            set {
+                this["LC_LayoutName"] = value;
+            }
+        }
     }
 }
