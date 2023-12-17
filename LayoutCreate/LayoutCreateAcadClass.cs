@@ -226,7 +226,7 @@ namespace Sheets
                     using (Point3dCollection coll = new Point3dCollection())
                     {
                         vc.IntersectWith(Contour, Intersect.OnBothOperands, coll, IntPtr.Zero, IntPtr.Zero);
-                        if (coll.Count == 0 )
+                        if (coll.Count == 0)
                         {
                             PositionType position = vc.StartPoint.GetPositionType(Contour);
                             if (position != PositionType.inner)
@@ -234,24 +234,15 @@ namespace Sheets
                                 vc?.Dispose();                               
                             }                               
                         }
-                        if (vc.IsDisposed)
-                        {
-                            curry += vpy * (1 - overlap) * 0.2;
-                            if (curry > maxy)
-                            {
-                                curry = 0;
-                                currx += vpx * (1 - overlap);
-                            }
-                        }
-                        else
+                        if (!vc.IsDisposed)
                         {
                             futureViewports.Add(vc);
-                            curry += vpy * (1 - overlap);
-                            if (curry > maxy)
-                            {
-                                curry = 0;
-                                currx += vpx * (1 - overlap);
-                            }
+                        }                        
+                        curry += vpy * (1 - overlap);
+                        if (curry > maxy)
+                        {
+                            curry = 0;
+                            currx += vpx * (1 - overlap);
                         }
                     }
                 }
