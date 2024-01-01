@@ -107,28 +107,22 @@ namespace Sheets
                                 }
                                 if (c != null)
                                 {
-                                    //получаем контур трансформированный в модель
-                                    c.TransformBy(Matrix3d.Scaling(1 / viewport.CustomScale, viewport.CenterPoint));
-                                            
-                                    //центр видового экрана
-                                    Point3d center = viewport.CenterPoint;
+                                    //масштабируем контур
+                                    c.TransformBy(Matrix3d.Scaling(1 / viewport.CustomScale, viewport.CenterPoint));                                            
+                                    
+                                    //получаем матрицу преобразования видового экрана в пространство модели
+                                    Matrix3d matrix = 
+                                        Matrix3d.Displacement(viewport.ViewCenter.GetPoint3d(0) - viewport.CenterPoint).PreMultiplyBy
+                                        (Matrix3d.PlaneToWorld(viewport.ViewDirection)).PreMultiplyBy
+                                        (Matrix3d.Displacement(viewport.ViewTarget - Point3d.Origin)).PreMultiplyBy
+                                        (Matrix3d.Rotation(-viewport.TwistAngle, viewport.ViewDirection, viewport.ViewTarget));
+                                    
+                                    //трансформируем видовой экран в модель
+                                    c.TransformBy(matrix);
+                                    //получаем центр видового экрана в модели
+                                    Point3d center = viewport.CenterPoint.TransformBy(matrix);
 
-                                    Vector3d s1 = viewport.ViewCenter.GetPoint3d(0) - viewport.CenterPoint;
-                                    c.TransformBy(Matrix3d.Displacement(s1));
-                                    center = center.TransformBy(Matrix3d.Displacement(s1));
-
-                                    if (viewport.TwistAngle != 0)
-                                    {
-                                        c.TransformBy(Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, Point3d.Origin));
-                                        center = center.TransformBy(Matrix3d.Rotation(-viewport.TwistAngle, Vector3d.ZAxis, Point3d.Origin));
-                                    }
-
-                                    Vector3d s2 = Point3d.Origin - viewport.ViewTarget;
-                                    c.TransformBy(Matrix3d.Displacement(s2));
-                                    center = center.TransformBy(Matrix3d.Displacement(s2));
-                                         
                                     //добавляем в границу
-
                                     if (c.Bounds.HasValue) fullex.AddExtents(c.Bounds.Value);
 
                                     //добавляем контур в основной блок
