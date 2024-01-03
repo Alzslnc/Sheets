@@ -165,6 +165,7 @@
     <Compile Include="SheetsCreate\DataClasses\IniData.cs" />
     <Compile Include="SheetsCreate\SheetsCreateClass.cs" />
     <Compile Include="SheetsCreate\DataClasses\ViewportLayersClass.cs" />
+    <Compile Include="SheetsCreate\SheetsDeleteClass.cs" />
     <Compile Include="Start.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

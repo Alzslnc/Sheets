@@ -11,7 +11,7 @@ namespace Sheets
 {
     public class SheetLinkAcadClass
     {
-        public void SheetLink()
+        public void Start()
         {
             if (!TryGetobjectId(out ObjectId brId, typeof(BlockReference), "Выберите связываемый блок")) return;
             if (!TryGetobjectId(out ObjectId vpId, typeof(Viewport), "Выберите связываемый видовой экран")) return;
