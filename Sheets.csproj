@@ -131,13 +131,31 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\BaseFunction\BaseClasses\BaseBlockReferenceClass.cs">
+      <Link>Base\BaseBlockReferenceClass.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\BaseClasses\BaseFormClass.cs">
+      <Link>Base\BaseFormClass.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\BaseClasses\BaseGeometryClass.cs">
+      <Link>Base\BaseGeometryClass.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\BaseClasses\BaseGetObjectClass.cs">
+      <Link>Base\BaseGetObjectClass.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\BaseClasses\BaseLayerClass.cs">
+      <Link>Base\BaseLayerClass.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\BaseClasses\TextBounds.cs">
+      <Link>Base\TextBounds.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\F.cs">
+      <Link>Base\F.cs</Link>
+    </Compile>
+    <Compile Include="..\BaseFunction\PositionAndIntersections.cs">
+      <Link>Base\PositionAndIntersections.cs</Link>
+    </Compile>
     <Compile Include="Base\AddButtons.cs" />
-    <Compile Include="Base\BaseBlockReferenceClass.cs" />
-    <Compile Include="Base\BaseFormClass.cs" />
-    <Compile Include="Base\BaseGetObjectClass.cs" />
-    <Compile Include="Base\BaseLayerClass.cs" />
-    <Compile Include="Base\F.cs" />
-    <Compile Include="Base\PositionAndIntersections.cs" />
     <Compile Include="Forms\LayoutCreateForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -153,8 +171,6 @@
     <Compile Include="SheetsCreate\DataClasses\BlockReferenceDataClass.cs" />
     <Compile Include="SheetsCreate\SheetLinkAcadClass.cs" />
     <Compile Include="SheetsCreate\SheetsCreateAcadClass.cs" />
-    <Compile Include="Base\BaseGeometryClass.cs" />
-    <Compile Include="Base\TextBounds.cs" />
     <Compile Include="Enums\Enums.cs" />
     <Compile Include="Forms\SheetsCreateForm.cs">
       <SubType>Form</SubType>

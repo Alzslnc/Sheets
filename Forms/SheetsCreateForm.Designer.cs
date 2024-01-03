@@ -55,6 +55,7 @@
             this.TextBox_BlockScale = new System.Windows.Forms.TextBox();
             this.Check_ScaleExist = new System.Windows.Forms.CheckBox();
             this.Check_SelfNumberColor = new System.Windows.Forms.CheckBox();
+            this.Button_Delete = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -72,7 +73,7 @@
             // 
             this.Button_Ok.Location = new System.Drawing.Point(10, 371);
             this.Button_Ok.Name = "Button_Ok";
-            this.Button_Ok.Size = new System.Drawing.Size(223, 50);
+            this.Button_Ok.Size = new System.Drawing.Size(148, 50);
             this.Button_Ok.TabIndex = 1;
             this.Button_Ok.Text = "Ok";
             this.Button_Ok.UseVisualStyleBackColor = true;
@@ -80,9 +81,9 @@
             // 
             // Button_Cancel
             // 
-            this.Button_Cancel.Location = new System.Drawing.Point(243, 371);
+            this.Button_Cancel.Location = new System.Drawing.Point(318, 371);
             this.Button_Cancel.Name = "Button_Cancel";
-            this.Button_Cancel.Size = new System.Drawing.Size(223, 50);
+            this.Button_Cancel.Size = new System.Drawing.Size(148, 50);
             this.Button_Cancel.TabIndex = 2;
             this.Button_Cancel.Text = "Cancel";
             this.Button_Cancel.UseVisualStyleBackColor = true;
@@ -336,11 +337,22 @@
             this.Check_SelfNumberColor.Text = "Свой номер по цвету штриховки";
             this.Check_SelfNumberColor.UseVisualStyleBackColor = true;
             // 
+            // Button_Delete
+            // 
+            this.Button_Delete.Location = new System.Drawing.Point(164, 371);
+            this.Button_Delete.Name = "Button_Delete";
+            this.Button_Delete.Size = new System.Drawing.Size(148, 50);
+            this.Button_Delete.TabIndex = 25;
+            this.Button_Delete.Text = "Delete";
+            this.Button_Delete.UseVisualStyleBackColor = true;
+            this.Button_Delete.Click += new System.EventHandler(this.Button_Delete_Click);
+            // 
             // SheetsCreateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 449);
+            this.Controls.Add(this.Button_Delete);
             this.Controls.Add(this.Check_SelfNumberColor);
             this.Controls.Add(this.Check_ScaleExist);
             this.Controls.Add(this.label4);
@@ -399,5 +411,6 @@
         private System.Windows.Forms.TextBox TextBox_BlockScale;
         private System.Windows.Forms.CheckBox Check_ScaleExist;
         private System.Windows.Forms.CheckBox Check_SelfNumberColor;
+        private System.Windows.Forms.Button Button_Delete;
     }
 }

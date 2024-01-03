@@ -94,59 +94,46 @@ namespace Sheets
                 Combo_AttributeTag.Enabled = false;            
             } 
         }
-
-        #region clicks       
-        private void Combo_BlockReference_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Settings.Default.LastBlock = Combo_BlockReference.Text;
-            Settings.Default.Save();
-            SetTags();
-        }
-        private void Combo_AttributeTag_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Settings.Default.LastTag = Combo_AttributeTag.Text;
-            Settings.Default.Save();
-        }
-        private void Button_Ok_Click(object sender, EventArgs e)
+        private bool SaveNewParametrs()
         {
             if (double.TryParse(TextBox_Scale.Text, out double result))
             {
                 if (result <= 0)
                 {
                     MessageBox.Show("масштаб должен быть больше нуля");
-                    return;
+                    return false;
                 }
             }
             else
             {
                 MessageBox.Show("введен некорректный масштаб");
-                return;
-            }            
+                return false;
+            }
             if (double.TryParse(TextBox_TextHeight.Text, out double result2))
             {
                 if (result2 <= 0)
                 {
                     MessageBox.Show("высота текста должена быть больше нуля");
-                    return;
+                    return false;
                 }
             }
             else
             {
                 MessageBox.Show("введена некорректная высота текста");
-                return;
+                return false;
             }
             if (double.TryParse(TextBox_BlockScale.Text, out double result3))
             {
                 if (result2 <= 0)
                 {
                     MessageBox.Show("масштаб блока должен быть больше нуля");
-                    return;
+                    return false;
                 }
             }
             else
             {
                 MessageBox.Show("введен некорректный масштаб блока");
-                return;
+                return false;
             }
 
             Settings.Default.Scale = result;
@@ -154,12 +141,11 @@ namespace Sheets
             Settings.Default.BlockScale = result3;
             Settings.Default.Prefix = TextBox_Prefix.Text;
             Settings.Default.ScaleExist = Check_ScaleExist.Checked;
-
-            IniData.Layer = Combo_Layers.Text;
+                       
             if (IniData.BlockReferenceDataClass != null)
             {
                 IniData.Block = Combo_BlockReference.Text;
-                IniData.AttributeTag = Combo_AttributeTag.Text;            
+                IniData.AttributeTag = Combo_AttributeTag.Text;
             }
 
             if (Radio_Attribute.Checked)
@@ -175,7 +161,7 @@ namespace Sheets
             {
                 IniData.PrefixType = PrefixType.Layer;
                 Settings.Default.RadioLayer = Radio_Layer.Checked;
-                Settings.Default.RadioAttribute = !Radio_Layer.Checked;          
+                Settings.Default.RadioAttribute = !Radio_Layer.Checked;
                 Settings.Default.RadioManual = !Radio_Layer.Checked;
                 Settings.Default.RadioList = !Radio_Layer.Checked;
                 Settings.Default.RadioNone = !Radio_Layer.Checked;
@@ -186,7 +172,7 @@ namespace Sheets
                 Settings.Default.RadioList = Radio_List.Checked;
                 Settings.Default.RadioLayer = !Radio_List.Checked;
                 Settings.Default.RadioAttribute = !Radio_List.Checked;
-                Settings.Default.RadioManual = !Radio_List.Checked;            
+                Settings.Default.RadioManual = !Radio_List.Checked;
                 Settings.Default.RadioNone = !Radio_List.Checked;
             }
             else if (Radio_None.Checked)
@@ -196,21 +182,47 @@ namespace Sheets
                 Settings.Default.RadioList = !Radio_None.Checked;
                 Settings.Default.RadioLayer = !Radio_None.Checked;
                 Settings.Default.RadioAttribute = !Radio_None.Checked;
-                Settings.Default.RadioManual = !Radio_None.Checked;         
+                Settings.Default.RadioManual = !Radio_None.Checked;
             }
             else if (Radio_Manual.Checked)
             {
                 IniData.PrefixType = PrefixType.Manual;
-                Settings.Default.RadioManual = Radio_Manual.Checked;            
+                Settings.Default.RadioManual = Radio_Manual.Checked;
                 Settings.Default.RadioNone = !Radio_Manual.Checked;
                 Settings.Default.RadioList = !Radio_Manual.Checked;
                 Settings.Default.RadioLayer = !Radio_Manual.Checked;
-                Settings.Default.RadioAttribute = !Radio_Manual.Checked;               
+                Settings.Default.RadioAttribute = !Radio_Manual.Checked;
             }
 
             Settings.Default.NoBlock = Check_NoBlock.Checked;
             Settings.Default.SelfNumberColor = Check_SelfNumberColor.Checked;
             Settings.Default.Save();
+            return true;
+        }
+        #region clicks       
+        private void Combo_BlockReference_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.LastBlock = Combo_BlockReference.Text;
+            Settings.Default.Save();
+            SetTags();
+        }
+        private void Combo_AttributeTag_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.LastTag = Combo_AttributeTag.Text;
+            Settings.Default.Save();
+        }
+        private void Button_Ok_Click(object sender, EventArgs e)
+        {
+            if (!SaveNewParametrs()) return;
+            IniData.Layer = Combo_Layers.Text;
+            IniData.Action = Action.Ok;
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+        private void Button_Delete_Click(object sender, EventArgs e)
+        {
+            IniData.Layer = Combo_Layers.Text;
+            IniData.Action = Action.Delete;
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -243,8 +255,9 @@ namespace Sheets
         {
 
         }
+
         #endregion
 
-      
+        
     }
 }
