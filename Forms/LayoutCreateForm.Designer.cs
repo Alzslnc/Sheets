@@ -36,13 +36,15 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.TextBox_NewLayoutName = new System.Windows.Forms.TextBox();
+            this.Check_OnLine = new System.Windows.Forms.CheckBox();
+            this.Check_LOCreate = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // Combo_Layouts
             // 
             this.Combo_Layouts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Combo_Layouts.FormattingEnabled = true;
-            this.Combo_Layouts.Location = new System.Drawing.Point(62, 69);
+            this.Combo_Layouts.Location = new System.Drawing.Point(62, 54);
             this.Combo_Layouts.Name = "Combo_Layouts";
             this.Combo_Layouts.Size = new System.Drawing.Size(286, 24);
             this.Combo_Layouts.TabIndex = 0;
@@ -50,7 +52,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(59, 40);
+            this.label1.Location = new System.Drawing.Point(59, 25);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(296, 16);
             this.label1.TabIndex = 1;
@@ -74,10 +76,11 @@
             this.Button_Cancel.TabIndex = 3;
             this.Button_Cancel.Text = "Отменить";
             this.Button_Cancel.UseVisualStyleBackColor = true;
+            this.Button_Cancel.Click += new System.EventHandler(this.Button_Cancel_Click);
             // 
             // TextBox_Overlap
             // 
-            this.TextBox_Overlap.Location = new System.Drawing.Point(62, 114);
+            this.TextBox_Overlap.Location = new System.Drawing.Point(62, 94);
             this.TextBox_Overlap.Name = "TextBox_Overlap";
             this.TextBox_Overlap.Size = new System.Drawing.Size(67, 22);
             this.TextBox_Overlap.TabIndex = 4;
@@ -85,7 +88,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(135, 117);
+            this.label2.Location = new System.Drawing.Point(135, 97);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(190, 16);
             this.label2.TabIndex = 5;
@@ -94,7 +97,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(184, 155);
+            this.label3.Location = new System.Drawing.Point(184, 135);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(164, 16);
             this.label3.TabIndex = 7;
@@ -102,16 +105,38 @@
             // 
             // TextBox_NewLayoutName
             // 
-            this.TextBox_NewLayoutName.Location = new System.Drawing.Point(62, 152);
+            this.TextBox_NewLayoutName.Location = new System.Drawing.Point(62, 132);
             this.TextBox_NewLayoutName.Name = "TextBox_NewLayoutName";
             this.TextBox_NewLayoutName.Size = new System.Drawing.Size(116, 22);
             this.TextBox_NewLayoutName.TabIndex = 6;
+            // 
+            // Check_OnLine
+            // 
+            this.Check_OnLine.AutoSize = true;
+            this.Check_OnLine.Location = new System.Drawing.Point(62, 160);
+            this.Check_OnLine.Name = "Check_OnLine";
+            this.Check_OnLine.Size = new System.Drawing.Size(126, 20);
+            this.Check_OnLine.TabIndex = 8;
+            this.Check_OnLine.Text = "Вдоль контура";
+            this.Check_OnLine.UseVisualStyleBackColor = true;
+            // 
+            // Check_LOCreate
+            // 
+            this.Check_LOCreate.AutoSize = true;
+            this.Check_LOCreate.Location = new System.Drawing.Point(211, 160);
+            this.Check_LOCreate.Name = "Check_LOCreate";
+            this.Check_LOCreate.Size = new System.Drawing.Size(149, 20);
+            this.Check_LOCreate.TabIndex = 9;
+            this.Check_LOCreate.Text = "Создавать листы?";
+            this.Check_LOCreate.UseVisualStyleBackColor = true;
             // 
             // LayoutCreateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(403, 244);
+            this.Controls.Add(this.Check_LOCreate);
+            this.Controls.Add(this.Check_OnLine);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.TextBox_NewLayoutName);
             this.Controls.Add(this.label2);
@@ -138,5 +163,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox TextBox_NewLayoutName;
+        private System.Windows.Forms.CheckBox Check_OnLine;
+        private System.Windows.Forms.CheckBox Check_LOCreate;
     }
 }

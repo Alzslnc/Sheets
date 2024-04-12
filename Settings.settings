@@ -53,5 +53,11 @@
     <Setting Name="LC_LayoutName" Type="System.String" Scope="User">
       <Value Profile="(Default)">NewLayout</Value>
     </Setting>
+    <Setting Name="LC_OnLine" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="LC_LOCreate" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

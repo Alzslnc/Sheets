@@ -24,6 +24,9 @@ namespace Sheets
 
             Combo_Layouts.Items.AddRange(ActionClass.LayoutNames.ToArray());
             if (Combo_Layouts.Items.Count > 0) Combo_Layouts.SelectedIndex = 0;
+
+            Check_LOCreate.Checked = Settings.Default.LC_LOCreate;
+            Check_OnLine.Checked = Settings.Default.LC_OnLine;
         }
 
         private void Button_Ok_Click(object sender, EventArgs e)
@@ -63,6 +66,8 @@ namespace Sheets
             }
 
             Settings.Default.LC_Overlap = result;
+            Settings.Default.LC_OnLine = Check_OnLine.Checked;
+            Settings.Default.LC_LOCreate = Check_LOCreate.Checked;
             Settings.Default.Save();
 
             ActionClass.Result = Combo_Layouts.Text;
@@ -70,5 +75,9 @@ namespace Sheets
             Close();
         }
 
+        private void Button_Cancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

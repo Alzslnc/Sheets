@@ -226,5 +226,29 @@ namespace Sheets {
                 this["LC_LayoutName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LC_OnLine {
+            get {
+                return ((bool)(this["LC_OnLine"]));
+            }
+            set {
+                this["LC_OnLine"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LC_LOCreate {
+            get {
+                return ((bool)(this["LC_LOCreate"]));
+            }
+            set {
+                this["LC_LOCreate"] = value;
+            }
+        }
     }
 }

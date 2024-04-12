@@ -214,7 +214,7 @@ namespace Sheets
         private void Button_Ok_Click(object sender, EventArgs e)
         {
             if (!SaveNewParametrs()) return;
-            IniData.Layer = Combo_Layers.Text;
+            IniData.Layer = Combo_Layers.Text;        
             IniData.Action = Action.Ok;
             DialogResult = DialogResult.OK;
             Close();
