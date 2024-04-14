@@ -163,6 +163,7 @@
       <DependentUpon>LayoutCreateForm.cs</DependentUpon>
     </Compile>
     <Compile Include="LayoutCreate\LayoutCreateAcadClass.cs" />
+    <Compile Include="LayoutToBlock\LayoutToBlockClass.cs" />
     <Compile Include="Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

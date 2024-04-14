@@ -28,5 +28,11 @@ namespace Sheets
             LayoutCreateAcadClass startClass = new LayoutCreateAcadClass();
             startClass.Start();
         }
+        [CommandMethod("LayoutToBlock")]
+        public void LayoutToBlockCommand()
+        {
+            LayoutToBlockClass startClass = new LayoutToBlockClass();
+            startClass.Start();
+        }
     }
 }

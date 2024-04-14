@@ -471,7 +471,7 @@ namespace Sheets
                                             //создаем контур блока
                                             Polyline poly = CreatePolyline(ex);
                                             //если по выбранному тагу находится значение то создаем данные блока
-                                            if (BlockReferenceGetAttribute(bref, IniData.AttributeTag, out string attResult))
+                                            if (bref.BlockReferenceGetAttribute(IniData.AttributeTag, out string attResult))
                                             {
                                                 brefData = new BrefData(id, poly, attResult);
                                                 BrefDatas.Add(brefData);
