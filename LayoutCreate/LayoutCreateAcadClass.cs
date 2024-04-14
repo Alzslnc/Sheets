@@ -56,7 +56,7 @@ namespace Sheets
             #region первичная обработка исходных данных и получение дополнительных
 
             //переменная валидности исходной области, используется если раскладка идет по области
-            bool correct = false;
+            bool correct = true;
             //считываем метод обработки
             bool onLine = Settings.Default.LC_OnLine;
 
@@ -67,7 +67,7 @@ namespace Sheets
                     //получаем исходный контур
                     Polyline poly = tr.GetObject(PolyId, OpenMode.ForRead, false, true) as Polyline;
                     //если раскладка по области проверяем контур
-                    if (!Settings.Default.LC_OnLine)
+                    if (!onLine)
                     {
                         correct = CheckPoly(poly, true);                        
                     }
@@ -158,8 +158,9 @@ namespace Sheets
 
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
+                bool create = true;
                 //получаем данные видового экрана и заполняем требуемые поля
-                LOCreateData ld = new LOCreateData(tr, this);
+                LayoutData ld = new LayoutData(tr, this);
                 if (ld.Exist)
                 {
                     //определяем нахлест как процент от размера рамки
@@ -186,13 +187,18 @@ namespace Sheets
                         foreach (ContourData contourData in ContourDatas) CreateOnArea(ld, contourData);
                     }
 
-                    CreateLayoutsAndContours(tr);
+                    create = CreateLayoutsAndContours(tr);
 
                     //снимаем отметку с выбранного видового экрана
                     if (Settings.Default.LC_LOCreate) XDataClear(vpId, "LayoutCreate", null);
                 }
                 ld.ViewportContour?.Dispose();
-                tr.Commit();
+                if (create) tr.Commit();
+                else
+                {
+                    MessageBox.Show("Число листов в одном файле не может превышать 255 штук, не удалось создать листы");
+                    tr.Abort();
+                }                    
             }
             #endregion
 
@@ -265,7 +271,6 @@ namespace Sheets
             foreach (Polyline polyline in Contours) polyline.TransformBy(Matrix3d.Displacement(ToOridginPoint));
             foreach (Polyline polyline in InnerContours) polyline.TransformBy(Matrix3d.Displacement(ToOridginPoint));
         }
-
         private bool CheckPoly(Polyline poly, bool message)
         {
             if (!poly.Closed)
@@ -311,7 +316,7 @@ namespace Sheets
                 tr.Commit();
             }
         }
-        private void CreateOnArea(LOCreateData ld, ContourData contourData)
+        private void CreateOnArea(LayoutData ld, ContourData contourData)
         {
             if (contourData.Contour == null) return;
             Polyline contour = contourData.Contour;
@@ -407,11 +412,7 @@ namespace Sheets
             }               
             
         }
-
-
-
-
-        private void CreateOnLine(LOCreateData ld, Polyline contour)
+        private void CreateOnLine(LayoutData ld, Polyline contour)
         {                        
             Point3d cCenter = ld.ViewportContour.Bounds.Value.MinPoint + (ld.ViewportContour.Bounds.Value.MaxPoint - ld.ViewportContour.Bounds.Value.MinPoint) / 2;
 
@@ -479,10 +480,15 @@ namespace Sheets
             
         }
 
-        private void CreateLayoutsAndContours(Transaction tr)
+        private bool CreateLayoutsAndContours(Transaction tr)
         {
             if (Settings.Default.LC_LOCreate)
             {
+                if (FutureViewports.Count > (255 - LayoutManager.Current.LayoutCount))
+                {                    
+                    return false;
+                }
+
                 string loIName = Settings.Default.LC_LayoutName;
                 string loname = loIName;
                 int k = 0;
@@ -506,7 +512,14 @@ namespace Sheets
                         }
                         LayoutNames.Add(cloname);
 
-                        lm.CloneLayout(ActionClass.Result, cloname, lm.LayoutCount);
+                        try
+                        {
+                            lm.CloneLayout(ActionClass.Result, cloname, lm.LayoutCount);
+                        }
+                        catch 
+                        {                           
+                            return false;
+                        }
 
                         using (Layout newLo = tr.GetObject(lm.GetLayoutId(cloname), OpenMode.ForRead) as Layout)
                         {
@@ -542,7 +555,9 @@ namespace Sheets
                     ms.AppendEntity(cur);
                     tr.AddNewlyCreatedDBObject(cur, true);
                 }
-            }         
+            }
+
+            return true;
         }
         
 
@@ -561,9 +576,9 @@ namespace Sheets
         private ObjectId ViewportId { get; set; } = ObjectId.Null;
         private double Overlap { get; set; } = 0;
         private List<LayoutClass> LayoutClasses { get; set; } = new List<LayoutClass>();
-        private class LOCreateData
+        private class LayoutData
         {
-            public LOCreateData(Transaction tr, LayoutCreateAcadClass layoutCreateAcad)
+            public LayoutData(Transaction tr, LayoutCreateAcadClass layoutCreateAcad)
             {
                 //получаем данные видового экрана
                 using (Viewport viewport = tr.GetObject(layoutCreateAcad.ViewportId, OpenMode.ForRead, false, true) as Viewport)
