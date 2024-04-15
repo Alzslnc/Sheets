@@ -33,6 +33,7 @@ namespace Sheets
             Editor ed = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.Editor;
             PromptStringOptions promptOptions = new PromptStringOptions("Введите название атрибута, в котором находится номер листа")
             {
+                DefaultValue = Settings.Default.LTB_default,
                 AllowSpaces = true
             };
             PromptResult pResult = ed.GetString(promptOptions);
@@ -40,6 +41,9 @@ namespace Sheets
             if (pResult.Status != PromptStatus.OK) return;
 
             string attName = pResult.StringResult;
+
+            Settings.Default.LTB_default = attName;
+            Settings.Default.Save();
 
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {

@@ -250,5 +250,41 @@ namespace Sheets {
                 this["LC_LOCreate"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LTB_default {
+            get {
+                return ((string)(this["LTB_default"]));
+            }
+            set {
+                this["LTB_default"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Схема листов")]
+        public string Name {
+            get {
+                return ((string)(this["Name"]));
+            }
+            set {
+                this["Name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Border {
+            get {
+                return ((bool)(this["Border"]));
+            }
+            set {
+                this["Border"] = value;
+            }
+        }
     }
 }

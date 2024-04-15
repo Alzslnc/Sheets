@@ -170,6 +170,7 @@ namespace Sheets
 
                                             using (BlockReference bref = new BlockReference(Point3d.Origin, btr.Id))
                                             {
+                                                bref.LineWeight = LineWeight.ByBlock;
                                                 referenceBtr.AppendEntity(bref);
                                                 tr.AddNewlyCreatedDBObject(bref, true);
                                             }
@@ -317,18 +318,52 @@ namespace Sheets
 
                         //получаем центр всех объектов
                         Point3d vcenter = fullex.MinPoint + (fullex.MaxPoint - fullex.MinPoint) * 0.5;
-                                               
-                        foreach (ObjectId id in btrIds)
+
+                        if (Settings.Default.Border)
                         {
-                            using (BlockTableRecord referenceBtr = tr.GetObject(id, OpenMode.ForWrite) as BlockTableRecord)
+                            Extents3d ex = new Extents3d();
+                            ex.AddExtents(fullex);
+                            ex.AddPoint(ex.MinPoint - Vector3d.XAxis * textheight - Vector3d.YAxis * textheight);
+                            ex.AddPoint(ex.MaxPoint + Vector3d.XAxis * textheight + Vector3d.YAxis * textheight);
+                            using (Polyline poly = ex.CreatePolylineFromExtents())
+                            { 
+                                poly.SetDatabaseDefaults();
+                                poly.ColorIndex = 7;
+                                poly.LineWeight = LineWeight.ByBlock;
+                                btr.AppendEntity(poly);
+                                tr.AddNewlyCreatedDBObject(poly, true);
+                            }                            
+                        }
+
+                        string sheetsName = Settings.Default.Name;
+
+                        if (!string.IsNullOrEmpty(sheetsName))
+                        {
+                            using (MText mtext = new MText())
                             {
-                                if (!referenceBtr.Origin.IsEqualTo(Point3d.Origin))
-                                { 
-                                    vcenter = referenceBtr.Origin;
-                                    break;
-                                }                                  
+                                mtext.SetDatabaseDefaults();
+                                mtext.ColorIndex = 7;
+                                mtext.Contents = sheetsName;
+                                mtext.TextHeight = textheight;
+                                mtext.Attachment = AttachmentPoint.BottomCenter;
+                                mtext.Location = fullex.MaxPoint
+                                    - Vector3d.XAxis * (fullex.MaxPoint.X - fullex.MinPoint.X) * 0.5
+                                    + Vector3d.YAxis * textheight * 2;
+                                btr.AppendEntity(mtext);
+                                tr.AddNewlyCreatedDBObject(mtext, true);
                             }
                         }
+                        foreach (ObjectId id in btrIds)
+                            {
+                                using (BlockTableRecord referenceBtr = tr.GetObject(id, OpenMode.ForWrite) as BlockTableRecord)
+                                {
+                                    if (!referenceBtr.Origin.IsEqualTo(Point3d.Origin))
+                                    {
+                                        vcenter = referenceBtr.Origin;
+                                        break;
+                                    }
+                                }
+                            }
                         foreach (ObjectId id in btrIds)
                         {
                             using (BlockTableRecord referenceBtr = tr.GetObject(id, OpenMode.ForWrite) as BlockTableRecord)

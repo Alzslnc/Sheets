@@ -59,5 +59,14 @@
     <Setting Name="LC_LOCreate" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="LTB_default" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Name" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Схема листов</Value>
+    </Setting>
+    <Setting Name="Border" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

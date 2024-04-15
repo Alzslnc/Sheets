@@ -29,6 +29,9 @@ namespace Sheets
             #endregion
 
             #region settings
+
+            Check_Border.Checked = Settings.Default.Border;
+            TextBox_Name.Text = Settings.Default.Name;
             TextBox_Scale.Text = Settings.Default.Scale.ToString();
             TextBox_TextHeight.Text = Settings.Default.TextHeight.ToString();
             TextBox_Prefix.Text = Settings.Default.Prefix.ToString();
@@ -136,6 +139,8 @@ namespace Sheets
                 return false;
             }
 
+            Settings.Default.Border = Check_Border.Checked;
+            Settings.Default.Name = TextBox_Name.Text;
             Settings.Default.Scale = result;
             Settings.Default.TextHeight = result2;
             Settings.Default.BlockScale = result3;

@@ -56,6 +56,9 @@
             this.Check_ScaleExist = new System.Windows.Forms.CheckBox();
             this.Check_SelfNumberColor = new System.Windows.Forms.CheckBox();
             this.Button_Delete = new System.Windows.Forms.Button();
+            this.TextBox_Name = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.Check_Border = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,7 +74,7 @@
             // 
             // Button_Ok
             // 
-            this.Button_Ok.Location = new System.Drawing.Point(10, 371);
+            this.Button_Ok.Location = new System.Drawing.Point(12, 362);
             this.Button_Ok.Name = "Button_Ok";
             this.Button_Ok.Size = new System.Drawing.Size(148, 50);
             this.Button_Ok.TabIndex = 1;
@@ -81,7 +84,7 @@
             // 
             // Button_Cancel
             // 
-            this.Button_Cancel.Location = new System.Drawing.Point(318, 371);
+            this.Button_Cancel.Location = new System.Drawing.Point(320, 362);
             this.Button_Cancel.Name = "Button_Cancel";
             this.Button_Cancel.Size = new System.Drawing.Size(148, 50);
             this.Button_Cancel.TabIndex = 2;
@@ -100,9 +103,9 @@
             // 
             // TextBox_Prefix
             // 
-            this.TextBox_Prefix.Location = new System.Drawing.Point(99, 97);
+            this.TextBox_Prefix.Location = new System.Drawing.Point(267, 45);
             this.TextBox_Prefix.Name = "TextBox_Prefix";
-            this.TextBox_Prefix.Size = new System.Drawing.Size(185, 22);
+            this.TextBox_Prefix.Size = new System.Drawing.Size(137, 22);
             this.TextBox_Prefix.TabIndex = 4;
             this.TextBox_Prefix.Text = "Лист ";
             // 
@@ -139,9 +142,9 @@
             this.groupBox1.Controls.Add(this.Radio_Layer);
             this.groupBox1.Controls.Add(this.Radio_List);
             this.groupBox1.Controls.Add(this.TextBox_Prefix);
-            this.groupBox1.Location = new System.Drawing.Point(11, 163);
+            this.groupBox1.Location = new System.Drawing.Point(12, 224);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(457, 202);
+            this.groupBox1.Size = new System.Drawing.Size(455, 132);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Нумерация экранов (префикс)";
@@ -160,7 +163,7 @@
             // Label_Block
             // 
             this.Label_Block.AutoSize = true;
-            this.Label_Block.Location = new System.Drawing.Point(197, 134);
+            this.Label_Block.Location = new System.Drawing.Point(197, 68);
             this.Label_Block.Name = "Label_Block";
             this.Label_Block.Size = new System.Drawing.Size(39, 16);
             this.Label_Block.TabIndex = 16;
@@ -170,7 +173,7 @@
             // Label_Attribute
             // 
             this.Label_Attribute.AutoSize = true;
-            this.Label_Attribute.Location = new System.Drawing.Point(322, 134);
+            this.Label_Attribute.Location = new System.Drawing.Point(322, 68);
             this.Label_Attribute.Name = "Label_Attribute";
             this.Label_Attribute.Size = new System.Drawing.Size(62, 16);
             this.Label_Attribute.TabIndex = 15;
@@ -182,7 +185,7 @@
             this.Check_UsePrefix.AutoSize = true;
             this.Check_UsePrefix.Checked = true;
             this.Check_UsePrefix.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.Check_UsePrefix.Location = new System.Drawing.Point(6, 162);
+            this.Check_UsePrefix.Location = new System.Drawing.Point(6, 96);
             this.Check_UsePrefix.Name = "Check_UsePrefix";
             this.Check_UsePrefix.Size = new System.Drawing.Size(188, 20);
             this.Check_UsePrefix.TabIndex = 14;
@@ -193,7 +196,7 @@
             // 
             this.Combo_AttributeTag.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Combo_AttributeTag.FormattingEnabled = true;
-            this.Combo_AttributeTag.Location = new System.Drawing.Point(325, 158);
+            this.Combo_AttributeTag.Location = new System.Drawing.Point(325, 92);
             this.Combo_AttributeTag.Name = "Combo_AttributeTag";
             this.Combo_AttributeTag.Size = new System.Drawing.Size(115, 24);
             this.Combo_AttributeTag.TabIndex = 13;
@@ -203,7 +206,7 @@
             // 
             this.Combo_BlockReference.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.Combo_BlockReference.FormattingEnabled = true;
-            this.Combo_BlockReference.Location = new System.Drawing.Point(200, 158);
+            this.Combo_BlockReference.Location = new System.Drawing.Point(200, 92);
             this.Combo_BlockReference.Name = "Combo_BlockReference";
             this.Combo_BlockReference.Size = new System.Drawing.Size(119, 24);
             this.Combo_BlockReference.TabIndex = 9;
@@ -212,7 +215,7 @@
             // Radio_Attribute
             // 
             this.Radio_Attribute.AutoSize = true;
-            this.Radio_Attribute.Location = new System.Drawing.Point(6, 139);
+            this.Radio_Attribute.Location = new System.Drawing.Point(6, 73);
             this.Radio_Attribute.Name = "Radio_Attribute";
             this.Radio_Attribute.Size = new System.Drawing.Size(151, 20);
             this.Radio_Attribute.TabIndex = 12;
@@ -223,7 +226,7 @@
             // Radio_Manual
             // 
             this.Radio_Manual.AutoSize = true;
-            this.Radio_Manual.Location = new System.Drawing.Point(6, 99);
+            this.Radio_Manual.Location = new System.Drawing.Point(174, 47);
             this.Radio_Manual.Name = "Radio_Manual";
             this.Radio_Manual.Size = new System.Drawing.Size(87, 20);
             this.Radio_Manual.TabIndex = 11;
@@ -234,7 +237,7 @@
             // Radio_Layer
             // 
             this.Radio_Layer.AutoSize = true;
-            this.Radio_Layer.Location = new System.Drawing.Point(6, 73);
+            this.Radio_Layer.Location = new System.Drawing.Point(174, 21);
             this.Radio_Layer.Name = "Radio_Layer";
             this.Radio_Layer.Size = new System.Drawing.Size(127, 20);
             this.Radio_Layer.TabIndex = 10;
@@ -292,7 +295,7 @@
             // Check_NoBlock
             // 
             this.Check_NoBlock.AutoSize = true;
-            this.Check_NoBlock.Location = new System.Drawing.Point(271, 72);
+            this.Check_NoBlock.Location = new System.Drawing.Point(277, 72);
             this.Check_NoBlock.Name = "Check_NoBlock";
             this.Check_NoBlock.Size = new System.Drawing.Size(188, 36);
             this.Check_NoBlock.TabIndex = 18;
@@ -320,7 +323,7 @@
             // Check_ScaleExist
             // 
             this.Check_ScaleExist.AutoSize = true;
-            this.Check_ScaleExist.Location = new System.Drawing.Point(211, 111);
+            this.Check_ScaleExist.Location = new System.Drawing.Point(12, 156);
             this.Check_ScaleExist.Name = "Check_ScaleExist";
             this.Check_ScaleExist.Size = new System.Drawing.Size(248, 20);
             this.Check_ScaleExist.TabIndex = 23;
@@ -330,7 +333,7 @@
             // Check_SelfNumberColor
             // 
             this.Check_SelfNumberColor.AutoSize = true;
-            this.Check_SelfNumberColor.Location = new System.Drawing.Point(211, 137);
+            this.Check_SelfNumberColor.Location = new System.Drawing.Point(12, 182);
             this.Check_SelfNumberColor.Name = "Check_SelfNumberColor";
             this.Check_SelfNumberColor.Size = new System.Drawing.Size(239, 20);
             this.Check_SelfNumberColor.TabIndex = 24;
@@ -339,7 +342,7 @@
             // 
             // Button_Delete
             // 
-            this.Button_Delete.Location = new System.Drawing.Point(164, 371);
+            this.Button_Delete.Location = new System.Drawing.Point(166, 362);
             this.Button_Delete.Name = "Button_Delete";
             this.Button_Delete.Size = new System.Drawing.Size(148, 50);
             this.Button_Delete.TabIndex = 25;
@@ -347,12 +350,43 @@
             this.Button_Delete.UseVisualStyleBackColor = true;
             this.Button_Delete.Click += new System.EventHandler(this.Button_Delete_Click);
             // 
+            // TextBox_Name
+            // 
+            this.TextBox_Name.Location = new System.Drawing.Point(279, 159);
+            this.TextBox_Name.Name = "TextBox_Name";
+            this.TextBox_Name.Size = new System.Drawing.Size(185, 22);
+            this.TextBox_Name.TabIndex = 18;
+            this.TextBox_Name.Text = "Лист ";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(276, 137);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(118, 16);
+            this.label3.TabIndex = 26;
+            this.label3.Text = "Название схемы.";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // Check_Border
+            // 
+            this.Check_Border.AutoSize = true;
+            this.Check_Border.Location = new System.Drawing.Point(277, 114);
+            this.Check_Border.Name = "Check_Border";
+            this.Check_Border.Size = new System.Drawing.Size(135, 20);
+            this.Check_Border.TabIndex = 26;
+            this.Check_Border.Text = "Добавить рамку";
+            this.Check_Border.UseVisualStyleBackColor = true;
+            // 
             // SheetsCreateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(478, 449);
+            this.Controls.Add(this.Check_Border);
             this.Controls.Add(this.Button_Delete);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.TextBox_Name);
             this.Controls.Add(this.Check_SelfNumberColor);
             this.Controls.Add(this.Check_ScaleExist);
             this.Controls.Add(this.label4);
@@ -412,5 +446,8 @@
         private System.Windows.Forms.CheckBox Check_ScaleExist;
         private System.Windows.Forms.CheckBox Check_SelfNumberColor;
         private System.Windows.Forms.Button Button_Delete;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox TextBox_Name;
+        private System.Windows.Forms.CheckBox Check_Border;
     }
 }
