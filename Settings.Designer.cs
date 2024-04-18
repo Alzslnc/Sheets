@@ -286,5 +286,29 @@ namespace Sheets {
                 this["Border"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LC_Along {
+            get {
+                return ((bool)(this["LC_Along"]));
+            }
+            set {
+                this["LC_Along"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LC_Fragmented {
+            get {
+                return ((bool)(this["LC_Fragmented"]));
+            }
+            set {
+                this["LC_Fragmented"] = value;
+            }
+        }
     }
 }

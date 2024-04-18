@@ -184,13 +184,15 @@ namespace Sheets
 
                                             //копия текста
                                             MText mtClone = mText.Clone() as MText;
-                                            if (Settings.Default.SelfNumberColor) mtClone.Layer = "!_sheets_hutch";                                       
+                                            if (Settings.Default.SelfNumberColor) mtClone.Layer = "!_sheets_hutch";
 
-                                            Circle circle = new Circle(mText.Location, Vector3d.ZAxis, radius);
-                                            circle.Layer = "!_sheets_hutch";
-                                            circle.ColorIndex = 256;
-                                            circle.LinetypeId = HostApplicationServices.WorkingDatabase.ByLayerLinetype;
-                                            circle.LineWeight = LineWeight.ByLayer;
+                                            Circle circle = new Circle(mText.Location, Vector3d.ZAxis, radius)
+                                            {
+                                                Layer = "!_sheets_hutch",
+                                                ColorIndex = 256,
+                                                LinetypeId = HostApplicationServices.WorkingDatabase.ByLayerLinetype,
+                                                LineWeight = LineWeight.ByLayer
+                                            };
                                             //referenceBtr.Origin = mText.Location;
 
                                             referenceBtr.AppendEntity(mtClone);

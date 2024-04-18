@@ -27,6 +27,8 @@ namespace Sheets
 
             Check_LOCreate.Checked = Settings.Default.LC_LOCreate;
             Check_OnLine.Checked = Settings.Default.LC_OnLine;
+            Check_Fragmented.Checked = Settings.Default.LC_Fragmented;
+            Check_Along.Checked = Settings.Default.LC_Along;
         }
 
         private void Button_Ok_Click(object sender, EventArgs e)
@@ -64,7 +66,8 @@ namespace Sheets
                 MessageBox.Show("Введена некорректная зона перекрытия");
                 return;
             }
-
+            Settings.Default.LC_Fragmented = Check_Fragmented.Checked;
+            Settings.Default.LC_Along = Check_Along.Checked;
             Settings.Default.LC_Overlap = result;
             Settings.Default.LC_OnLine = Check_OnLine.Checked;
             Settings.Default.LC_LOCreate = Check_LOCreate.Checked;

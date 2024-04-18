@@ -38,6 +38,8 @@
             this.TextBox_NewLayoutName = new System.Windows.Forms.TextBox();
             this.Check_OnLine = new System.Windows.Forms.CheckBox();
             this.Check_LOCreate = new System.Windows.Forms.CheckBox();
+            this.Check_Along = new System.Windows.Forms.CheckBox();
+            this.Check_Fragmented = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // Combo_Layouts
@@ -60,7 +62,7 @@
             // 
             // Button_Ok
             // 
-            this.Button_Ok.Location = new System.Drawing.Point(62, 192);
+            this.Button_Ok.Location = new System.Drawing.Point(62, 256);
             this.Button_Ok.Name = "Button_Ok";
             this.Button_Ok.Size = new System.Drawing.Size(137, 28);
             this.Button_Ok.TabIndex = 2;
@@ -70,7 +72,7 @@
             // 
             // Button_Cancel
             // 
-            this.Button_Cancel.Location = new System.Drawing.Point(211, 192);
+            this.Button_Cancel.Location = new System.Drawing.Point(211, 256);
             this.Button_Cancel.Name = "Button_Cancel";
             this.Button_Cancel.Size = new System.Drawing.Size(137, 28);
             this.Button_Cancel.TabIndex = 3;
@@ -130,11 +132,33 @@
             this.Check_LOCreate.Text = "Создавать листы?";
             this.Check_LOCreate.UseVisualStyleBackColor = true;
             // 
+            // Check_Along
+            // 
+            this.Check_Along.AutoSize = true;
+            this.Check_Along.Location = new System.Drawing.Point(62, 186);
+            this.Check_Along.Name = "Check_Along";
+            this.Check_Along.Size = new System.Drawing.Size(230, 20);
+            this.Check_Along.TabIndex = 10;
+            this.Check_Along.Text = "Разворачивать вдоль трассы?";
+            this.Check_Along.UseVisualStyleBackColor = true;
+            // 
+            // Check_Fragmented
+            // 
+            this.Check_Fragmented.AutoSize = true;
+            this.Check_Fragmented.Location = new System.Drawing.Point(62, 212);
+            this.Check_Fragmented.Name = "Check_Fragmented";
+            this.Check_Fragmented.Size = new System.Drawing.Size(224, 20);
+            this.Check_Fragmented.TabIndex = 11;
+            this.Check_Fragmented.Text = "Раскладка с точек разворота";
+            this.Check_Fragmented.UseVisualStyleBackColor = true;
+            // 
             // LayoutCreateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(403, 244);
+            this.ClientSize = new System.Drawing.Size(403, 296);
+            this.Controls.Add(this.Check_Fragmented);
+            this.Controls.Add(this.Check_Along);
             this.Controls.Add(this.Check_LOCreate);
             this.Controls.Add(this.Check_OnLine);
             this.Controls.Add(this.label3);
@@ -165,5 +189,7 @@
         private System.Windows.Forms.TextBox TextBox_NewLayoutName;
         private System.Windows.Forms.CheckBox Check_OnLine;
         private System.Windows.Forms.CheckBox Check_LOCreate;
+        private System.Windows.Forms.CheckBox Check_Along;
+        private System.Windows.Forms.CheckBox Check_Fragmented;
     }
 }

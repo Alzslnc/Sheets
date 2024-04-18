@@ -2,6 +2,7 @@
 using Autodesk.AutoCAD.Geometry;
 using System;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using System.Windows.Forms;
 using static BaseFunction.BaseGeometryClass;
@@ -60,6 +61,8 @@ namespace Sheets
             //считываем метод обработки
             bool onLine = Settings.Default.LC_OnLine;
 
+            bool fragmented = Settings.Default.LC_Fragmented;
+
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
                 foreach (ObjectId PolyId in PolyIds)
@@ -76,7 +79,20 @@ namespace Sheets
                     {
                         Polyline Contour = poly.Clone() as Polyline;
                         Contour.Elevation = 0;
-                        Contours.Add(Contour);
+                        if (onLine && fragmented)
+                        {
+                            using (DBObjectCollection collection = new DBObjectCollection())
+                            {
+                                Contour.Explode(collection);
+                                foreach (DBObject dBObject in collection)
+                                { 
+                                    if (dBObject is Curve curve) Contours.Add(curve);
+                                    else dBObject?.Dispose();
+                                }
+                                Contour?.Dispose();
+                            }
+                        }
+                        else Contours.Add(Contour);
                     }
                     else
                     {
@@ -180,7 +196,7 @@ namespace Sheets
 
                     if (onLine)
                     {
-                        foreach (Polyline contour in Contours) CreateOnLine(ld, contour);
+                        foreach (Curve contour in Contours) CreateOnLine(ld, contour);
                     }
                     else
                     { 
@@ -214,9 +230,9 @@ namespace Sheets
         }
         private bool CreateContourDatas()
         {
-            foreach (Polyline contour in Contours)
+            foreach (Curve contour in Contours)
             {
-                foreach (Polyline contour2 in Contours)
+                foreach (Curve contour2 in Contours)
                 {
                     if (contour2.Equals(contour)) continue;
                     using (Point3dCollection coll = new Point3dCollection())
@@ -227,7 +243,7 @@ namespace Sheets
                 }
             }
 
-            foreach (Polyline contour in Contours)
+            foreach (Curve contour in Contours)
             {
                 ContourData data = new ContourData { Contour = contour };
                 foreach (Polyline contour2 in InnerContours)
@@ -256,7 +272,7 @@ namespace Sheets
         { 
             Extents3d extents = new Extents3d();
 
-            foreach (Polyline polyline in Contours)
+            foreach (Curve polyline in Contours)
             {
                 if (polyline.Bounds.HasValue) extents.AddExtents(polyline.Bounds.Value);
             }
@@ -268,7 +284,7 @@ namespace Sheets
 
             ToOridginPoint = Point3d.Origin - extents.MinPoint.Z0();
 
-            foreach (Polyline polyline in Contours) polyline.TransformBy(Matrix3d.Displacement(ToOridginPoint));
+            foreach (Curve polyline in Contours) polyline.TransformBy(Matrix3d.Displacement(ToOridginPoint));
             foreach (Polyline polyline in InnerContours) polyline.TransformBy(Matrix3d.Displacement(ToOridginPoint));
         }
         private bool CheckPoly(Polyline poly, bool message)
@@ -319,7 +335,7 @@ namespace Sheets
         private void CreateOnArea(LayoutData ld, ContourData contourData)
         {
             if (contourData.Contour == null) return;
-            Polyline contour = contourData.Contour;
+            Polyline contour = contourData.Contour as Polyline;
             //получаем вектора раскладки экранов
             Vector3d vx = Vector3d.XAxis.TransformBy(Matrix3d.Rotation(-Angle, Vector3d.ZAxis, Point3d.Origin));
             Vector3d vy = Vector3d.YAxis.TransformBy(Matrix3d.Rotation(-Angle, Vector3d.ZAxis, Point3d.Origin));
@@ -400,7 +416,8 @@ namespace Sheets
                     }
                     if (!vc.IsDisposed)
                     {
-                        FutureViewports.Add(vc);
+                        Point3d center = vc.GeometricExtents.MinPoint + (vc.GeometricExtents.MaxPoint - vc.GeometricExtents.MinPoint) * 0.5;
+                        FutureViewports.Add(new FutureViewport { Polyline = vc, Center = center } );
                     }                       
                     curry += ld.ViewportHeight * (1 - Overlap);
                     if (curry > maxy)
@@ -412,8 +429,10 @@ namespace Sheets
             }               
             
         }
-        private void CreateOnLine(LayoutData ld, Polyline contour)
-        {                        
+        private void CreateOnLine(LayoutData ld, Curve contour)
+        {
+            bool along = Settings.Default.LC_Along;
+
             Point3d cCenter = ld.ViewportContour.Bounds.Value.MinPoint + (ld.ViewportContour.Bounds.Value.MaxPoint - ld.ViewportContour.Bounds.Value.MinPoint) / 2;
 
             //дистанция до последней рамки
@@ -430,9 +449,18 @@ namespace Sheets
                 //получаем клон рамки
                 Curve curve = ld.ViewportContour.Clone() as Curve;
 
+                Point3d newCenter = contour.GetPointAtDist(curDistance);
                 //помещаем на последнее полученное пересечение
-                curve.TransformBy(Matrix3d.Displacement(contour.GetPointAtDist(curDistance) - cCenter));
-                                        
+                curve.TransformBy(Matrix3d.Displacement(newCenter - cCenter));                                        
+                Vector3d fd = contour.GetFirstDerivative(newCenter);
+                double angle = 0;
+                if (along)
+                {
+                    angle = Vector3d.XAxis.GetAngleTo(fd, Vector3d.ZAxis);
+                    if (angle > Math.PI / 2 && angle < Math.PI / 2 * 3) angle += Math.PI;
+                    if (angle > Math.PI * 2) angle -= Math.PI * 2;
+                    curve.TransformBy(Matrix3d.Rotation(angle, Vector3d.ZAxis, newCenter));
+                }
                 using (Point3dCollection coll = new Point3dCollection())
                 {
                     //ищем пересечения рамки и поилинии
@@ -440,7 +468,7 @@ namespace Sheets
                     //если пересечений нет то рамка больше полилинии и полилиния внутри, оставляем одну рамку и останавливаем
                     if (coll.Count == 0)
                     {
-                        FutureViewports.Add(curve);
+                        FutureViewports.Add(new FutureViewport { Polyline = curve, Angle = angle, Center = newCenter });
                         break;
                     }   
                             
@@ -455,7 +483,7 @@ namespace Sheets
                     //если после центра рамки пересечений нет то значит рамка последняя, добавляем ее и останавливаем
                     if (coll.Count == 0)
                     {
-                        FutureViewports.Add(curve);
+                        FutureViewports.Add(new FutureViewport { Polyline = curve, Angle = angle, Center = newCenter});
                         break;
                     }
                     //если пересечений несколько то сортируем вдоль полилинии
@@ -467,7 +495,7 @@ namespace Sheets
                     //если рамка четная то добавляем ее, если не то пропускаем
                     if (chet)
                     {
-                        FutureViewports.Add(curve);
+                        FutureViewports.Add(new FutureViewport { Polyline = curve, Angle = angle, Center = newCenter });
                         chet = false;
                     }
                     else
@@ -503,7 +531,7 @@ namespace Sheets
 
                 using (LayoutManager lm = LayoutManager.Current)
                 {
-                    foreach (Curve cur in FutureViewports)
+                    foreach (FutureViewport cur in FutureViewports)
                     {
                         while (LayoutNames.Contains(cloname))
                         {
@@ -535,8 +563,19 @@ namespace Sheets
                                         using (Viewport newVp = tr.GetObject(id, OpenMode.ForWrite) as Viewport)
                                         {
                                             newVp.Layer = Name;
-                                            Vector3d toNewViewCenter = (cur.StartPoint - StartPoint).RotateBy(Angle, Vector3d.ZAxis);
-                                            newVp.ViewCenter += new Vector2d(toNewViewCenter.X, toNewViewCenter.Y);
+                                            //получаем вектор смещения на новое положение видового экрана
+                                            Vector3d toNewViewCenter = (cur.Center - StartPoint).RotateBy(Angle, Vector3d.ZAxis);       
+                                            //получаем новое положение видового экрана
+                                            Point2d newCenter = newVp.ViewCenter + new Vector2d(toNewViewCenter.X, toNewViewCenter.Y);
+                                            if (cur.Angle != 0)
+                                            {
+                                                //получаем новое положение видового экрана с учетом разворота листа
+                                                newCenter = newCenter.TransformBy(Matrix2d.Rotation(-cur.Angle, Point2d.Origin));
+                                                //разворачиваем видовой экран по листу
+                                                newVp.TwistAngle -= cur.Angle;
+                                            }
+                                            //устанавливаем вид
+                                            newVp.ViewCenter = newCenter;
                                         }
                                         break;
                                     }
@@ -548,12 +587,12 @@ namespace Sheets
             }
             using (BlockTableRecord ms = tr.GetObject(SymbolUtilityServices.GetBlockModelSpaceId(HostApplicationServices.WorkingDatabase), OpenMode.ForWrite) as BlockTableRecord)
             {
-                foreach (Curve cur in FutureViewports)
+                foreach (FutureViewport cur in FutureViewports)
                 {
-                    cur.TransformBy(Matrix3d.Displacement(-ToOridginPoint));
-                    cur.Layer = Name;
-                    ms.AppendEntity(cur);
-                    tr.AddNewlyCreatedDBObject(cur, true);
+                    cur.Polyline.TransformBy(Matrix3d.Displacement(-ToOridginPoint));
+                    cur.Polyline.Layer = Name;                    
+                    ms.AppendEntity(cur.Polyline);
+                    tr.AddNewlyCreatedDBObject(cur.Polyline, true);
                 }
             }
 
@@ -567,10 +606,10 @@ namespace Sheets
         private Point3d ViewCenter { get; set; } = Point3d.Origin;
         private Matrix3d ViewportMatrix { get; set; } = new Matrix3d();
         private ActionClass ActionClass { get; set; }
-        private List<Polyline> Contours { get; set; } = new List<Polyline>();
+        private List<Curve> Contours { get; set; } = new List<Curve>();
         private List<Polyline> InnerContours { get; set; } = new List<Polyline>();
         private List<ContourData> ContourDatas { get; set; } = new List<ContourData>();
-        private List<Curve> FutureViewports { get; set; } = new List<Curve>();
+        private List<FutureViewport> FutureViewports { get; set; } = new List<FutureViewport>();
         private List<string> LayoutNames { get; set; } = new List<string>();
         private string Name { get; set; } = "";
         private ObjectId ViewportId { get; set; } = ObjectId.Null;
@@ -609,7 +648,8 @@ namespace Sheets
                     ViewportContour.TransformBy(Matrix3d.Displacement(layoutCreateAcad.ToOridginPoint));
 
 
-                    layoutCreateAcad.StartPoint = ViewportContour.StartPoint;
+                    //layoutCreateAcad.StartPoint = ViewportContour.StartPoint;
+                    layoutCreateAcad.StartPoint = ViewportContour.GeometricExtents.MinPoint + (ViewportContour.GeometricExtents.MaxPoint - ViewportContour.GeometricExtents.MinPoint) * 0.5;
                     layoutCreateAcad.ViewCenter = viewport.ViewCenter.GetPoint3d(0).TransformBy(layoutCreateAcad.ViewportMatrix.Inverse()).TransformBy(Matrix3d.Displacement(layoutCreateAcad.ToOridginPoint));
 
                     T1transform = layoutCreateAcad.ViewCenter - ViewportContour.StartPoint;
@@ -627,7 +667,7 @@ namespace Sheets
         }
         private class ContourData
         {
-            public Polyline Contour { get; set; } = null;
+            public Curve Contour { get; set; } = null;
             public List<Polyline> InnerContours { get; set; } = new List<Polyline> ();        
         }
         public class LayoutClass
@@ -639,7 +679,13 @@ namespace Sheets
             }         
             public ObjectId Id { get; set; }
             public string Name { get; set; }
-        }       
+        }
+        public class FutureViewport
+        {         
+            public Curve Polyline { get; set; }
+            public double Angle { get; set; } = 0;
+            public Point3d Center { get; set; } = Point3d.Origin;
+        }
     }
     public class ActionClass
     {     
