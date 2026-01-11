@@ -17,7 +17,7 @@ namespace Sheets
             {
                 using (Viewport vp = tr.GetObject(vpId, OpenMode.ForRead, false, true) as Viewport)
                 {
-                    XDataSet(brId, "SheetsOnLayouts", new List<TypedValue>
+                    BaseFunction.F.XDataSet(brId, "SheetsOnLayouts", new List<TypedValue>
                     {
                         new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), vp.Handle),
                     }, true);

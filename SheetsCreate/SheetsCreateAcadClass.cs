@@ -155,7 +155,7 @@ namespace Sheets
                                         tr.AddNewlyCreatedDBObject(mText, true);
                                         
                                         //получаем диаметр круга
-                                        using (Polyline polyline = CreatePolyline(mText))
+                                        using (Polyline polyline = mText.CreatePolyline())
                                         {
                                             radius = mText.Location.Z0().DistanceTo(polyline.GetPoint3dAt(0).Z0()) * 1.1;
                                         }
@@ -243,7 +243,7 @@ namespace Sheets
                                                     if (rid.IsErased || created.Contains(rid)) continue;
                                                     if (rid.ObjectClass.Equals(RXClass.GetClass(typeof(BlockReference))))
                                                     {
-                                                        ResultBuffer typedValues = XDataGet(rid, "SheetsOnLayouts");
+                                                        ResultBuffer typedValues = BaseFunction.F.XDataGet(rid, "SheetsOnLayouts");
                                                         
                                                         if (typedValues == null) continue;
                                                         foreach (TypedValue tv in typedValues)
@@ -283,7 +283,7 @@ namespace Sheets
                                                             ObjectId nbrId = ltr.AppendEntity(blockReference);
                                                             created.Add(nbrId);
                                                             tr.AddNewlyCreatedDBObject(blockReference, true);
-                                                            XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
+                                                            BaseFunction.F.XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
                                                             {
                                                                 new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle),
                                                             }, true);
@@ -303,7 +303,7 @@ namespace Sheets
                                                         ObjectId nbrId = ltr.AppendEntity(blockReference);
                                                         created.Add(nbrId);
                                                         tr.AddNewlyCreatedDBObject(blockReference, true);
-                                                        XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
+                                                        BaseFunction.F.XDataSet(nbrId, "SheetsOnLayouts", new List<TypedValue>
                                                             {
                                                                 new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle),
                                                             }, true);

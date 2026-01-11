@@ -186,7 +186,7 @@ namespace Sheets
                     //помечаем выбранный видовой экран
                     if (Settings.Default.LC_LOCreate)
                     {
-                        XDataSet(ViewportId, "LayoutCreate", new List<TypedValue>
+                      BaseFunction.F.XDataSet(ViewportId, "LayoutCreate", new List<TypedValue>
                             {
                                 new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataAsciiString), "1"),
                             }, true);
@@ -206,7 +206,7 @@ namespace Sheets
                     create = CreateLayoutsAndContours(tr);
 
                     //снимаем отметку с выбранного видового экрана
-                    if (Settings.Default.LC_LOCreate) XDataClear(vpId, "LayoutCreate", null);
+                    if (Settings.Default.LC_LOCreate) BaseFunction.F.XDataClear(vpId, "LayoutCreate", null);
                 }
                 ld.ViewportContour?.Dispose();
                 if (create) tr.Commit();
@@ -342,7 +342,7 @@ namespace Sheets
 
             if (Settings.Default.LC_LOCreate)
             {
-                XDataSet(ViewportId, "LayoutCreate", new List<TypedValue>
+                BaseFunction.F.XDataSet(ViewportId, "LayoutCreate", new List<TypedValue>
                         {
                             new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataAsciiString), "1"),
                         }, true);
@@ -555,10 +555,10 @@ namespace Sheets
                             {
                                 foreach (ObjectId id in newLobtr)
                                 {
-                                    ResultBuffer rb = XDataGet(id, "LayoutCreate");
+                                    ResultBuffer rb = BaseFunction.F.XDataGet(id, "LayoutCreate");
                                     if (rb != null)
                                     {
-                                        XDataClear(id, "LayoutCreate", null);
+                                        BaseFunction.F.XDataClear(id, "LayoutCreate", null);
 
                                         using (Viewport newVp = tr.GetObject(id, OpenMode.ForWrite) as Viewport)
                                         {
