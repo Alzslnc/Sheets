@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
+    <RootNamespace>Sheets</RootNamespace>
+  </PropertyGroup>
+
+<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+   <OutDir>..\Sheets.bundle\contents\</OutDir>
+   <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+   <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+</PropertyGroup>
+
+
+<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+   <OutDir>..\bin\Debag\</OutDir>
+   <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+   <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+</PropertyGroup>
+
+
+  <ItemGroup>
+    <Compile Include="..\..\BaseFunction\BaseClasses\AddButtons.cs" Link="Base\AddButtons.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseBlockReferenceClass.cs" Link="Base\BaseBlockReferenceClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseGeometryClass.cs" Link="Base\BaseGeometryClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseGetObjectClass.cs" Link="Base\BaseGetObjectClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseHookClass.cs" Link="Base\BaseHookClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseLayerClass.cs" Link="Base\BaseLayerClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseWPF.cs" Link="Base\BaseWPF.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\BaseXMLClass.cs" Link="Base\BaseXMLClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\ControlVersionClass.cs" Link="Base\ControlVersionClass.cs" />
+    <Compile Include="..\..\BaseFunction\BaseClasses\TransientGraphicsClass.cs" Link="Base\TransientGraphicsClass.cs" />
+    <Compile Include="..\..\BaseFunction\F.cs" Link="Base\F.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoCAD.NET" Version="25.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Base\" />
+  </ItemGroup>
+
+</Project>

@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34018.315
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11806.211 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sheets", "Sheets.csproj", "{F01890E7-1220-42A2-B2F0-62DED31AE175}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sheets2024", "Sheets2024\Sheets2024.csproj", "{FDDB8C66-54BD-491A-8C4D-F82607C0D112}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sheets2025", "Sheets2025\Sheets2025.csproj", "{C75BD293-1796-4231-9C4D-D057B2E8E840}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{F01890E7-1220-42A2-B2F0-62DED31AE175}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F01890E7-1220-42A2-B2F0-62DED31AE175}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F01890E7-1220-42A2-B2F0-62DED31AE175}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDDB8C66-54BD-491A-8C4D-F82607C0D112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDDB8C66-54BD-491A-8C4D-F82607C0D112}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDDB8C66-54BD-491A-8C4D-F82607C0D112}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDDB8C66-54BD-491A-8C4D-F82607C0D112}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C75BD293-1796-4231-9C4D-D057B2E8E840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C75BD293-1796-4231-9C4D-D057B2E8E840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C75BD293-1796-4231-9C4D-D057B2E8E840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C75BD293-1796-4231-9C4D-D057B2E8E840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
