@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sheets.Support
+namespace Sheets
 {
     internal static class Support
     {
@@ -58,7 +58,33 @@ namespace Sheets.Support
 
             return true;
         }
+        public static void CreateLayer(string name, bool plot, Transaction tr)
+        {
+            using (LayerTable layerTable = tr.GetObject(HostApplicationServices.WorkingDatabase.LayerTableId, OpenMode.ForWrite, false, true) as LayerTable)
+            {
+                LayerTableRecord layerTableRecord = null;
+                if (layerTable.Has(name))
+                {
+                    layerTableRecord = tr.GetObject(layerTable[name], OpenMode.ForWrite, false, true) as LayerTableRecord;
+                }
+                else
+                { 
+                    layerTableRecord = new LayerTableRecord();
+                    layerTableRecord.Name = name;
+                    layerTableRecord.IsPlottable = plot;
+                    layerTable.Add(layerTableRecord);
+                    tr.AddNewlyCreatedDBObject(layerTableRecord, true);
+                }
 
+                if (layerTableRecord == null) return;
+
+                using (layerTableRecord)
+                { 
+                    layerTableRecord.IsOff = false;
+                    layerTableRecord.IsFrozen = false;                    
+                }
+            }
+        }
         
     }
 }

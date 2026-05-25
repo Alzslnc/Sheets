@@ -36,10 +36,12 @@
     <Compile Include="..\..\BaseFunction\BaseClasses\ControlVersionClass.cs" Link="Base\ControlVersionClass.cs" />
     <Compile Include="..\..\BaseFunction\BaseClasses\TransientGraphicsClass.cs" Link="Base\TransientGraphicsClass.cs" />
     <Compile Include="..\..\BaseFunction\F.cs" Link="Base\F.cs" />
+    <Compile Include="..\..\BaseFunction\PositionAndIntersections.cs" Link="Base\PositionAndIntersections.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoCAD.NET" Version="25.0.1" />
+    <PackageReference Include="Digi-Ants.AutoCAD.API.MPolygon" Version="2025.0.0" />
   </ItemGroup>
 
   <ItemGroup>

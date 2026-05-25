@@ -55,9 +55,8 @@
       <HintPath>..\packages\AutoCAD.NET.24.0.0\lib\net47\AcMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="AcMPolygonMGD">
-      <HintPath>C:\Program Files\Autodesk\AutoCAD 2024\AcMPolygonMGD.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="AcMPolygonMGD, Version=16.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\Digi-Ants.AutoCAD.API.MPolygon.2022.0.0\lib\net47\AcMPolygonMGD.dll</HintPath>
     </Reference>
     <Reference Include="AcMr, Version=24.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoCAD.NET.24.0.0\lib\net47\AcMr.dll</HintPath>
