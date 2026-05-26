@@ -46,7 +46,6 @@ namespace Sheets.Program
                             string handle = typedValue.Value.ToString();
                             if (string.IsNullOrEmpty(handle)) break;
 
-                            //Handle h = 
                             if (blockList.ContainsKey(handle)) blockList[handle].Add(reference);
                             else blockList.Add(handle, new List<BlockReference> { reference });
 
@@ -82,13 +81,25 @@ namespace Sheets.Program
 
         private static bool Create(Viewport viewport, List<BlockReference> value, Transaction tr)
         {
+            List<(double, BlockReference)> order = new List<(double, BlockReference)>();
+
+            foreach (BlockReference blockReference in value)
+            {
+                if (blockReference.BlockReferenceGetAttribute(Names.BlockReferenceNumber, out string result) && double.TryParse(result.Replace(",", "."), out double doubleResult))
+                {
+                    order.Add((doubleResult, blockReference));
+                }
+            }
+
+            order = order.OrderBy(x => x.Item1).ToList();
+
             //название слоя для видовых экранов на новых листах
-            string layerName = $"{Names.ViewportLayerName}_{viewport.Handle}_{DateTime.Now.ToString("HH:mm:ss dd.MM.yyyy")}";
+            string layerName = $"{Names.ViewportLayerName}_{viewport.Handle}_{DateTime.Now.ToString("HH.mm.ss dd.MM.yyyy")}";
 
             //открываем слой видового экрана и копируем его если его нет       
-            LayerTable layerTable = tr.GetObject(HostApplicationServices.WorkingDatabase.LayerTableId, OpenMode.ForRead, false, true) as LayerTable;
+            LayerTable layerTable = tr.GetObject(HostApplicationServices.WorkingDatabase.LayerTableId, OpenMode.ForWrite, false, true) as LayerTable;
             if (!layerTable.Has(layerName))
-            {               
+            {
                 LayerTableRecord layer = tr.GetObject(viewport.LayerId, OpenMode.ForWrite, false, true).Clone() as LayerTableRecord;
                 layer.Name = layerName;
                 layerTable.Add(layer);
@@ -98,7 +109,7 @@ namespace Sheets.Program
             //создаем уникальный идентификатор для текущей команды и добавляем его в xdata
             string unique = Guid.NewGuid().ToString();
             viewport.XDataSet(Names.LayoutCreateAppName, new List<TypedValue> { new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataAsciiString), unique) }, true);
-            
+
             //получаем исходный лист через пространство видового экрана
             BlockTableRecord btr = tr.GetObject(viewport.OwnerId, OpenMode.ForRead, false, true) as BlockTableRecord;
             if (btr == null || !btr.IsLayout) return false;
@@ -112,87 +123,84 @@ namespace Sheets.Program
             //определяем класс видового экрана
             RXClass viewportClass = RXClass.GetClass(typeof(Viewport));
 
-            //исходные геометрические данные
-            Matrix3d ViewportMatrix = viewport.ConvertToViewport();
-            double Angle = viewport.TwistAngle;
 
-            //создаем листы
-            foreach (BlockReference block in value)
+            using (Curve curve = viewport.GetViewportCurveInModel(tr, false, out _, out _, out Point3d center, out Matrix3d matrix))
             {
-                //создаем новое имя для листа
-                string name;
-                while (LayoutManager.Current.LayoutExists(name = $"{layoutName}({i++})")) continue;
+                Point3d viewOrigin = viewport.ViewCenter.GetPoint3d(0).TransformBy(matrix.Inverse());
 
-                //создаем лист как копию основного
-                try
+                //создаем листы
+                foreach ((double, BlockReference) val in order)
                 {
-                    LayoutManager.Current.CloneLayout(layout.LayoutName, name, LayoutManager.Current.LayoutCount);
-                }
-                catch (Autodesk.AutoCAD.Runtime.Exception ex)
-                { 
-                    System.Windows.MessageBox.Show(ex.Message);
-                    return false;
-                }
+                    BlockReference block = val.Item2;
+                    //создаем новое имя для листа
+                    string name;
+                    while (LayoutManager.Current.LayoutExists(name = $"{layoutName}({i++})")) continue;
 
-                //октрываем новый лист
-                Layout newLayout = tr.GetObject(LayoutManager.Current.GetLayoutId(name), OpenMode.ForRead, false, true) as Layout;
-
-                //открываем пространство блока
-                BlockTableRecord newBtr = tr.GetObject(newLayout.BlockTableRecordId, OpenMode.ForRead, false, true) as BlockTableRecord;
-
-                //флаг остановки
-                bool changed = false;
-
-                //ищем видовой экран
-                foreach (ObjectId id in newBtr)
-                {
-                    //определяем видовой экран
-                    if (id.ObjectClass != viewportClass) continue;
-                    Viewport newViewport = tr.GetObject(id, OpenMode.ForWrite, false, true) as Viewport;
-                    if (newViewport == null) continue;
-
-                    //определяем записаны ли в него данные
-                    ResultBuffer typedValues = newViewport.GetXDataForApplication(Names.LayoutCreateAppName);
-                    if (typedValues == null) continue;
-
-                    //проверяем нужный ли видовой экран
-                    foreach (TypedValue typedValue in typedValues)
+                    //создаем лист как копию основного
+                    try
                     {
-                        if (typedValue.Value == unique)
-                        {
-                            //устанавливаем слой
-                            newViewport.Layer = layerName;
-
-                            //получаем вектор смещения на новое положение видового экрана
-                            Vector3d toNewViewCenter = (cur.Center - StartPoint).RotateBy(Angle, Vector3d.ZAxis);
-                            //получаем новое положение видового экрана
-                            Point2d newCenter = newVp.ViewCenter + new Vector2d(toNewViewCenter.X, toNewViewCenter.Y);
-                            if (cur.Angle != 0)
-                            {
-                                //получаем новое положение видового экрана с учетом разворота листа
-                                newCenter = newCenter.TransformBy(Matrix2d.Rotation(-cur.Angle, Point2d.Origin));
-                                //разворачиваем видовой экран по листу
-                                newVp.TwistAngle -= cur.Angle;
-                            }
-                            //устанавливаем вид
-                            newVp.ViewCenter = newCenter;
-
-                            changed = true;
-                            break;
-                        }
-
+                        LayoutManager.Current.CloneLayout(layout.LayoutName, name, LayoutManager.Current.LayoutCount);
+                    }
+                    catch (Autodesk.AutoCAD.Runtime.Exception ex)
+                    {
+                        System.Windows.MessageBox.Show(ex.Message);
+                        return false;
                     }
 
-                    if (changed) break;
-                }
-            }
-                        
-            return true;
-        }
+                    //октрываем новый лист
+                    Layout newLayout = tr.GetObject(LayoutManager.Current.GetLayoutId(name), OpenMode.ForRead, false, true) as Layout;
 
-        private static void SetViewportPosition(BlockTableRecord newBtr, Transaction tr, RXClass viewportClass, BlockReference block, string unique, string layoutName, bool plot)
-        {
-            
+                    //открываем пространство блока
+                    BlockTableRecord newBtr = tr.GetObject(newLayout.BlockTableRecordId, OpenMode.ForRead, false, true) as BlockTableRecord;
+
+                    //флаг остановки
+                    bool changed = false;
+
+                    //ищем видовой экран
+                    foreach (ObjectId id in newBtr)
+                    {
+                        //определяем видовой экран
+                        if (id.ObjectClass != viewportClass) continue;
+                        Viewport newViewport = tr.GetObject(id, OpenMode.ForWrite, false, true) as Viewport;
+                        if (newViewport == null) continue;
+
+                        //определяем записаны ли в него данные
+                        ResultBuffer typedValues = newViewport.GetXDataForApplication(Names.LayoutCreateAppName);
+                        if (typedValues == null) continue;
+
+
+                        //проверяем нужный ли видовой экран
+                        foreach (TypedValue typedValue in typedValues)
+                        {
+                            if (typedValue.Value.ToString() == unique)
+                            {
+                                //устанавливаем слой
+                                newViewport.Layer = layerName;
+
+                                //разворачиваем
+                                if (block.Rotation != 0)
+                                {                                                                    
+                                    //разворачиваем видовой экран по блоку
+                                    newViewport.TwistAngle -= block.Rotation;
+                                }
+
+                                //устанавливаем вид
+                                newViewport.ViewTarget = block.Position;
+                                newViewport.ViewCenter = Point2d.Origin;
+                                                                 
+                                changed = true;
+
+                                break;
+                            }
+
+                        }
+
+                        if (changed) break;
+                    }
+                }
+
+                return true;
+            }
         }
     }
 }

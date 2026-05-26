@@ -1,5 +1,6 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Geometry;
+using Autodesk.AutoCAD.Runtime;
 using BaseFunction;
 using System;
 using System.Collections.Generic;
@@ -12,41 +13,71 @@ namespace Sheets.Program
     {
         internal static void Create()
         {
-            Settings.Default.ExtentsCreateType = ExtentsCreateType.area;
+            Settings.Default.ExtentsCreateType = ExtentsCreateType.curve;
             Settings.Default.ExtentsOverlap = 2;
             Settings.Default.ExtentsAlongCurve = true;
             Settings.Default.YOnNorth = false;
 
             //если не находимся на листе то прерываем
             if (!Support.InLayout(true)) return;
-
-            //выбираем видовой экран для получения границы и размера
-            if (!BaseGetObjectClass.TryGetobjectId(out ObjectId id, typeof(Viewport), "Выберите видовой экран для последующего создания областей в модели: ")) return;
-
-            //переходим на модель
-            LayoutManager.Current.CurrentLayout = "Model";
-
-            //выбираем объекты областей или трасс для создания раскладки экранов
-            string message = Settings.Default.ExtentsCreateType == ExtentsCreateType.curve ? "трассы" : "области";
-
-            List<Type> types = new List<Type> { typeof(Polyline), typeof(Circle), typeof(Spline), typeof(Ellipse) };
-            if (Settings.Default.ExtentsCreateType == ExtentsCreateType.curve)
-            {
-                types.Add(typeof(Line));
-                types.Add(typeof(Arc));
-            } 
-
-            if (!BaseGetObjectClass.TryGetObjectsIds(out List<ObjectId> ids, types, $"Выберите {message} для создания областей видимости видовых экранов.")) return;
-
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
+                ObjectId id = ObjectId.Null;
+
+                //выбираем видовой экран для получения границы и размера
+                bool finded = false;
+                while (!finded)
+                {
+                    if (!BaseGetObjectClass.TryGetobjectId(out id, new List<Type> { typeof(Curve), typeof(Viewport) }, "Выберите видовой экран для последующего создания областей в модели: ", true)) return;
+
+                    if (id.ObjectClass == RXClass.GetClass(typeof(Viewport))) break;
+
+                    Curve curve = tr.GetObject(id, OpenMode.ForRead, false, true) as Curve;
+
+                    if (curve == null) continue;
+
+                    //определяем класс видового экрана
+                    RXClass viewportClass = RXClass.GetClass(typeof(Viewport));
+
+                    foreach (ObjectId vid in (tr.GetObject(HostApplicationServices.WorkingDatabase.CurrentSpaceId, OpenMode.ForRead) as BlockTableRecord))
+                    {
+                        if (vid.ObjectClass != viewportClass) continue;
+
+                        Viewport vp = tr.GetObject(vid, OpenMode.ForRead, false, true) as Viewport;
+
+                        if (vp == null) continue;
+
+                        if (vp.NonRectClipOn && vp.NonRectClipEntityId == id)
+                        {
+                            id = vid;
+                            finded = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (id == ObjectId.Null) return;
+
+                //переходим на модель
+                LayoutManager.Current.CurrentLayout = "Model";
+
+                //выбираем объекты областей или трасс для создания раскладки экранов
+                string message = Settings.Default.ExtentsCreateType == ExtentsCreateType.curve ? "трассы" : "области";
+
+                List<Type> types = new List<Type> { typeof(Polyline), typeof(Circle), typeof(Spline), typeof(Ellipse) };
+                if (Settings.Default.ExtentsCreateType == ExtentsCreateType.curve)
+                {
+                    types.Add(typeof(Line));
+                    types.Add(typeof(Arc));
+                } 
+
+                if (!BaseGetObjectClass.TryGetObjectsIds(out List<ObjectId> ids, types, $"Выберите {message} для создания областей видимости видовых экранов.")) return;
+                            
                 //получаем видовой экран
                 Viewport viewport = tr.GetObject(id, OpenMode.ForRead, false, true) as Viewport;
                 if (viewport == null) return;
-                //получаем его габариты в модели
-                double width = viewport.Width / viewport.CustomScale;
-                double height = viewport.Height / viewport.CustomScale;
 
+              
                 //получаем выбранные кривые
                 List<Curve> curves = new List<Curve>();
                 foreach (ObjectId cid in ids)
@@ -63,40 +94,18 @@ namespace Sheets.Program
                     }
                     return;
                 } 
-                      
-               
-
-                //перекрытите
-                double overlap = width * Settings.Default.ExtentsOverlap / 100;
-
+                    
                 //создаем блок экрана и возвращаем его Id          
                 string name = $"{Names.ExtentName}{viewport.Handle}";
                 //создаем слой для блоков
                 Support.CreateLayer(name, false, tr);
-
-                //создаем переменную для контура видового экрана
-                Curve polyline;
-
-                //получаем контур видового экрана
-                if (viewport.NonRectClipEntityId != null && viewport.NonRectClipEntityId != ObjectId.Null)
-                {
-                    polyline = tr.GetObject(viewport.NonRectClipEntityId, OpenMode.ForRead).Clone() as Curve;                    
-                }
-                else
-                {                   
-                    Polyline poly = new Polyline();
-                    int j = 0;
-                    poly.AddVertexAt(j++, new Point2d(-width / 2, -height / 2), 0, 0, 0);
-                    poly.AddVertexAt(j++, new Point2d(-width / 2, height / 2), 0, 0, 0);
-                    poly.AddVertexAt(j++, new Point2d(width / 2, height / 2), 0, 0, 0);
-                    poly.AddVertexAt(j++, new Point2d(width / 2, -height / 2), 0, 0, 0);
-                    poly.Closed = true;
-                    polyline = poly;                 
-                }
-
+                               
                 //создаем контур соответствующий видовому экрану в модели
-                using (polyline)
+                using (Curve polyline = viewport.GetViewportCurveInModel(tr, true, out double height, out double width, out _, out _))
                 {
+                    //перекрытите
+                    double overlap = width * Settings.Default.ExtentsOverlap / 100;
+
                     //создаем блок
                     ObjectId blockId = GetExtentBlockId(name, tr, width, height, polyline);
 
@@ -108,11 +117,20 @@ namespace Sheets.Program
                     //добавляем области в чертеж
                     toModelSpace.AddEntityInCurrentBTR(tr);
 
+                    int i = 1;
+
                     //добввляем хендл области блокам
                     foreach (Entity entity in toModelSpace)
                     {
                         entity.XDataSet(Names.LayoutCreateAppName, new List<TypedValue> { new TypedValue(Convert.ToInt32(DxfCode.ExtendedDataHandle), viewport.Handle) }, true);
+                        BlockReference reference = entity as BlockReference;
+                        if (reference != null)
+                        {
+                            reference.BlockReferenceSetAttribute(tr);
+                            reference.BlockReferenceChangeAttribute(tr, new Dictionary<string, string> { { Names.BlockReferenceNumber, i++.ToString() } });
+                        }
                     }
+
                 }
                                
 
@@ -126,7 +144,6 @@ namespace Sheets.Program
 
             foreach (Curve curve in curves)
             {
-
                 //дистанция до последней рамки
                 double curDistance = 0;
                 //длина полилинии
@@ -137,7 +154,7 @@ namespace Sheets.Program
                 //пока рамки в пределах полилинии
                 while (curDistance < contLongth)
                 {
-                    using (Polyline clone = polyline.Clone() as Polyline)
+                    using (Curve clone = polyline.Clone() as Curve)
                     {
                         Point3d newCenter = curve.GetPointAtDist(curDistance);
                         //помещаем на последнее полученное пересечение
@@ -189,7 +206,7 @@ namespace Sheets.Program
 
                             //если рамка четная то добавляем ее, если не то пропускаем
                             if (chet)
-                            {
+                            {                               
                                 toModelSpace.Add(new BlockReference(newCenter, blockId) { Layer = name, Rotation = angle });
                                 chet = false;
                             }
@@ -291,6 +308,22 @@ namespace Sheets.Program
             //направления
             CreateLine(Names.NoPlotLayer, 0, 0, 0, height / 2, btr, tr, 1);
             CreateLine(Names.NoPlotLayer, 0, 0, width / 2, 0, btr, tr, 1);
+
+            AttributeDefinition attribute = new AttributeDefinition()
+            {
+                Tag = Names.BlockReferenceNumber,
+                ColorIndex = 1,
+                Height = width / 5,
+                Justify = AttachmentPoint.MiddleCenter,
+                AlignmentPoint = Point3d.Origin,
+                LockPositionInBlock = true,
+                Preset = false,
+                TextString = "",
+                Layer = Names.NoPlotLayer,
+                IsMTextAttributeDefinition = true,
+            };
+            btr.AppendEntity(attribute);
+            tr.AddNewlyCreatedDBObject(attribute, true);
 
             return bt[name];
         }
