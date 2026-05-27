@@ -18,7 +18,7 @@
 
 
 <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-   <OutDir>..\bin\Debag\</OutDir>
+   <OutDir>..\bin\Debug\</OutDir>
    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 </PropertyGroup>
@@ -35,6 +35,7 @@
     <Compile Include="..\..\BaseFunction\BaseClasses\BaseXMLClass.cs" Link="Base\BaseXMLClass.cs" />
     <Compile Include="..\..\BaseFunction\BaseClasses\ControlVersionClass.cs" Link="Base\ControlVersionClass.cs" />
     <Compile Include="..\..\BaseFunction\BaseClasses\TransientGraphicsClass.cs" Link="Base\TransientGraphicsClass.cs" />
+    <Compile Include="..\..\BaseFunction\EntityJigInsert.cs" Link="Base\EntityJigInsert.cs" />
     <Compile Include="..\..\BaseFunction\F.cs" Link="Base\F.cs" />
     <Compile Include="..\..\BaseFunction\PositionAndIntersections.cs" Link="Base\PositionAndIntersections.cs" />
   </ItemGroup>
@@ -46,6 +47,7 @@
 
   <ItemGroup>
     <Folder Include="Base\" />
+    <Folder Include="View\SettingsView\" />
   </ItemGroup>
 
 </Project>

@@ -13,5 +13,9 @@ namespace Sheets
         public static string LayoutCreateAppName { get; } = "LayoutApp";
         public static string ViewportLayerName { get; } = "!_Layouts";
         public static string BlockReferenceNumber { get; } = "Number";
+        public static string BorderLayer { get; } = "!_SheetsBorder";
+        public static string HeaderLayer { get; } = "!_SheetsHeader";
+        public static string BackgroundSheetsLayer { get; } = "!_SheetsBackground";
+        public static string SheetsLayer { get; } = "!_Sheets";
     }
 }

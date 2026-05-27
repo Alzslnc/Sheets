@@ -22,39 +22,7 @@ namespace Sheets.Program
             if (!Support.InLayout(true)) return;
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
-                ObjectId id = ObjectId.Null;
-
-                //выбираем видовой экран для получения границы и размера
-                bool finded = false;
-                while (!finded)
-                {
-                    if (!BaseGetObjectClass.TryGetobjectId(out id, new List<Type> { typeof(Curve), typeof(Viewport) }, "Выберите видовой экран для последующего создания областей в модели: ", true)) return;
-
-                    if (id.ObjectClass == RXClass.GetClass(typeof(Viewport))) break;
-
-                    Curve curve = tr.GetObject(id, OpenMode.ForRead, false, true) as Curve;
-
-                    if (curve == null) continue;
-
-                    //определяем класс видового экрана
-                    RXClass viewportClass = RXClass.GetClass(typeof(Viewport));
-
-                    foreach (ObjectId vid in (tr.GetObject(HostApplicationServices.WorkingDatabase.CurrentSpaceId, OpenMode.ForRead) as BlockTableRecord))
-                    {
-                        if (vid.ObjectClass != viewportClass) continue;
-
-                        Viewport vp = tr.GetObject(vid, OpenMode.ForRead, false, true) as Viewport;
-
-                        if (vp == null) continue;
-
-                        if (vp.NonRectClipOn && vp.NonRectClipEntityId == id)
-                        {
-                            id = vid;
-                            finded = true;
-                            break;
-                        }
-                    }
-                }
+                ObjectId id = Support.GetViewportId(tr);
 
                 if (id == ObjectId.Null) return;
 

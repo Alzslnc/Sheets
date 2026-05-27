@@ -5,21 +5,16 @@
         area,
         curve
     }
-    public enum Action
-    { 
+    public enum NumType
+    {
         none,
-        Ok, 
-        Cancel,   
-        NLC,
-        Delete,
+        order,
+        byList,
+        byReferenceAtteibute
     }
-
-    public enum PrefixType
-    { 
-        none,
-        Layer,
-        List,
-        Attribute,
-        Manual,
+    public enum PositionType
+    {        
+        point,
+        viewport
     }
 }
