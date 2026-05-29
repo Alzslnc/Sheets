@@ -1,4 +1,5 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Internal;
 using Autodesk.AutoCAD.Runtime;
@@ -7,8 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 using System.Windows.Media.Media3D;
 
 namespace Sheets
@@ -211,7 +214,7 @@ namespace Sheets
 
             foreach (ObjectId btrId in blockTable)
             {
-                BlockTableRecord btr = tr.GetObject(btrId, OpenMode.ForRead) as BlockTableRecord;
+                BlockTableRecord btr = tr.GetObject(btrId, OpenMode.ForWrite) as BlockTableRecord;
 
                 if (!btr.IsLayout) continue;
 
@@ -238,15 +241,21 @@ namespace Sheets
                     }
                 }
 
+                List<string> layers = new List<string>();
+
                 foreach (ObjectId id in btr)
                 {
                     if (id.ObjectClass != viewportClass) continue;
 
                     Viewport viewport = tr.GetObject(id, OpenMode.ForRead, false, true) as Viewport;
 
+                    if (viewport != null) layers.Add(viewport.Layer);
+
                     if (viewport == null || viewport.Layer != layer) continue;
 
                     ViewportData viewportData = new ViewportData { Name = string.Empty, Viewport = viewport, Owner = btr };
+
+                    result.Add(viewportData);
 
                     if (Settings.Default.NumType == NumType.order)
                     {
@@ -273,6 +282,8 @@ namespace Sheets
                         }                        
                     }
                 }
+
+                int i12 = 0;
             }
 
             return result;
@@ -312,6 +323,141 @@ namespace Sheets
             }
 
             return result.OrderBy(x => x.Name);
+        }
+
+        [DllImport("acad.exe", EntryPoint = "?acedHatchPalletteDialog@@YA_NPEB_W_NAEAPEA_W@Z",CharSet = CharSet.Auto)]
+
+        static extern bool acedHatchPalletteDialog(string currentPattern,bool showcustom,out IntPtr newpattern);
+       
+        internal static bool GetHatchPattern(out string hatchType)
+        {
+            hatchType = string.Empty;
+                        
+            try
+            {
+                string sHatchType = Settings.Default.HatchPattern;
+
+                IntPtr ptr;
+
+                bool bRet = false;
+
+                bRet = acedHatchPalletteDialog(sHatchType, true, out ptr);
+
+                if (bRet)
+                {
+                    string sNewHatchType = Marshal.PtrToStringAuto(ptr);
+
+                    if (sNewHatchType.Length > 0) hatchType = sNewHatchType;
+
+                    return true;
+                }
+            }
+            catch { }
+
+            return false;
+        }
+        internal static BlockReference? RecreateSheetBlock(ViewportData data, BlockTableRecord btr, BlockTable bt, Transaction tr, double textHeight, double scale)
+        {
+            //название блока
+            string viewportBlockName = $"{Names.SheetsLayer}_{data.Viewport.Handle}";
+            bool newBlock = false;
+            //создаем новый блок
+            BlockTableRecord newBtr;
+            if (bt.Has(viewportBlockName))
+            {
+                newBtr = tr.GetObject(bt[viewportBlockName], OpenMode.ForWrite) as BlockTableRecord;
+                foreach (ObjectId id in newBtr)
+                {
+                    Entity entity = tr.GetObject(id, OpenMode.ForWrite, false, true) as Entity;
+                    entity.Erase();
+                }
+            }
+            else
+            { 
+                newBlock = true;
+                newBtr = new BlockTableRecord() { Name = viewportBlockName };
+                bt.Add(newBtr);
+                tr.AddNewlyCreatedDBObject(newBtr, true);
+            }
+
+            //если блок новый то устанавливаем центр
+            if (newBlock) newBtr.Origin = btr.Origin;
+
+            //добавляем подложку
+            BlockReference background = new BlockReference(btr.Origin, btr.Id) { Layer = Names.SheetsLayer, ColorIndex = 256, LineWeight = LineWeight.ByLayer };
+            newBtr.AppendEntity(background);
+            tr.AddNewlyCreatedDBObject(background, true);
+
+            //добавляем контур
+            Curve curve = data.ModelCurve.Clone() as Curve;
+            curve.LineWeight = LineWeight.ByLayer;
+            curve.ColorIndex = 256;
+            curve.Layer = Names.CurrentObjectsLayer;
+            newBtr.AppendEntity(curve);
+            tr.AddNewlyCreatedDBObject(curve, true);
+
+            //определяем центр контура
+            Point3d center = curve.GeometricExtents.MinPoint + (curve.GeometricExtents.MaxPoint - curve.GeometricExtents.MinPoint) / 2;
+
+            //добавляем номер
+            MText number = new MText()
+            {
+                TextHeight = textHeight,
+                Attachment = AttachmentPoint.MiddleCenter,
+                Layer = Names.BackgroundSheetsLayer,
+                ColorIndex = 256,
+                LineWeight = LineWeight.ByLayer,
+                Contents = Settings.Default.Prefix + data.Name,
+                Location = center,
+            };
+            Circle circle = null;
+            if (!string.IsNullOrEmpty(number.Text))
+            {
+                btr.AppendEntity(number);
+                tr.AddNewlyCreatedDBObject(number, true);
+
+                MText nClone = number.Clone() as MText;
+                nClone.Layer = Names.CurrentObjectsLayer;
+                newBtr.AppendEntity(nClone);
+                tr.AddNewlyCreatedDBObject(nClone, true);               
+
+                double radius = number.GeometricExtents.MaxPoint.DistanceTo(number.GeometricExtents.MinPoint) / 2;
+
+                //добавляем круг
+                circle = new Circle(center, Vector3d.ZAxis, radius > textHeight ? radius : textHeight) { Layer = Names.CurrentObjectsLayer, ColorIndex = 256, LineWeight = LineWeight.ByLayer };
+                newBtr.AppendEntity(circle);
+                tr.AddNewlyCreatedDBObject(circle, true);
+            }
+            //добавляем штриховку
+            Hatch hatch = new Hatch();
+            hatch.ColorIndex = 256;
+            hatch.LineWeight = LineWeight.ByLayer;
+            hatch.Layer = Names.CurrentObjectsLayer;
+            hatch.PatternScale = Settings.Default.HatchScale / scale;
+            try
+            {
+                hatch.PatternAngle = Settings.Default.HatchAngle / 180 * Math.PI;    
+            }
+            catch
+            { 
+            }
+            hatch.SetHatchPattern(HatchPatternType.PreDefined, Settings.Default.HatchPattern);
+            newBtr.AppendEntity(hatch);
+            tr.AddNewlyCreatedDBObject(hatch, true);
+            hatch.AppendLoop(HatchLoopTypes.External, new ObjectIdCollection { curve.Id });
+            if (circle != null) hatch.AppendLoop(HatchLoopTypes.Outermost, new ObjectIdCollection { circle.Id });
+
+            if (newBlock)
+            {
+                BlockReference reference = new BlockReference(data.Viewport.CenterPoint, newBtr.Id);
+                reference.ScaleFactors = new Scale3d(scale);
+                data.Owner.AppendEntity(reference);
+                tr.AddNewlyCreatedDBObject(reference, true);
+                return reference;
+            }
+
+            return null;
+
         }
     }
     public class BlockRefData

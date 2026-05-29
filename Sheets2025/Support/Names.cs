@@ -17,5 +17,8 @@ namespace Sheets
         public static string HeaderLayer { get; } = "!_SheetsHeader";
         public static string BackgroundSheetsLayer { get; } = "!_SheetsBackground";
         public static string SheetsLayer { get; } = "!_Sheets";
+        public static string CurrentObjectsLayer { get; } = "!_Sheets_Current";
+
+             
     }
 }

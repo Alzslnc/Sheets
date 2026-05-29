@@ -10,7 +10,7 @@
         none,
         order,
         byList,
-        byReferenceAtteibute
+        byReferenceAtteibute,
     }
     public enum PositionType
     {        

@@ -3,45 +3,68 @@ using Autodesk.AutoCAD.Geometry;
 using BaseFunction;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sheets.Program
 {
     internal class SheetsCreateClass
     {
         internal static void Create()
-        {            
-            bool? result = Autodesk.AutoCAD.ApplicationServices.Application.ShowModalWindow(new View.SheetsCreateView.SheetsCreateView());
-            if (result.HasValue && result.Value)
+        {
+            try
             {
-                Settings.Save();
+                bool? result = Autodesk.AutoCAD.ApplicationServices.Application.ShowModalWindow(new View.SheetsCreateView.SheetsCreateView());
+                if (result.HasValue && result.Value)
+                {
+                    Settings.Save();
+                }
+                else
+                {
+                    Settings.Load();
+                    return;
+                }
+                if (Settings.Default.SelectPosition)
+                {
+                    if (!Support.InLayout(true)) return;
+                }
+                if (string.IsNullOrEmpty(Settings.Default.ViewportLayerName))
+                {
+                    System.Windows.MessageBox.Show("Не выбран слой на котором находятся видовые экраны для создания схемы.");
+                    return;
+                }
+                CreateSheets();
             }
-            else
-            { 
-                Settings.Load();
-                return;
-            }
-            if (Settings.Default.SelectPosition)
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Для создания листов с возможностью выбора положения надо находиться в пространстве листа.");
-                return;
+                System.Windows.MessageBox.Show(ex.Message);
             }
-            if (string.IsNullOrEmpty(Settings.Default.ViewportLayerName))
-            {
-                System.Windows.MessageBox.Show("Не выбран слой на котором находятся видовые экраны для создания схемы.");
-                return;
-            }
-            CreateSheets();
+        }
+
+        private static void CreateLayers(Transaction tr)
+        {
+            //создаем слой фона
+            Support.CreateLayer(Names.BackgroundSheetsLayer, true, tr);
+            //создаем слой фона
+            Support.CreateLayer(Names.HeaderLayer, true, tr);
+            //создаем слой фона
+            Support.CreateLayer(Names.BorderLayer, true, tr);
+            //создаем слой фона
+            Support.CreateLayer(Names.SheetsLayer, true, tr);
+            //создаем слой фона
+            Support.CreateLayer(Names.CurrentObjectsLayer, true, tr);
         }
 
         private static void CreateSheets()
-        {
+        {            
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
+
+                CreateLayers(tr);
                 BlockTable bt = tr.GetObject(HostApplicationServices.WorkingDatabase.BlockTableId, OpenMode.ForWrite) as BlockTable;
                 //исходные данные для создания схем
                 Point3d? blockPosition = Point3d.Origin;
                 Point3d blockOriginPosition = Point3d.Origin;
-                double blockScale = Settings.Default.Scale;
+                double blockScale = 1000 / Settings.Default.Scale ;
                 List<ViewportData> viewports = Support.GetViewportDatas(tr, Settings.Default.ViewportLayerName);
                 if (viewports.Count == 0)
                 {
@@ -67,7 +90,7 @@ namespace Sheets.Program
                 BlockTableRecord btr = CreateBlock(blockOriginPosition, blockScale, tr, bt, viewports, out List<BlockReference> references);
 
                 //получаем положение блока на листе если задано вручную
-                if (Settings.Default.SelectPosition && Settings.Default.PositionType == PositionType.point)
+                if (Settings.Default.SelectPosition && Settings.Default.PositionType == PositionType.point && references.Any(x => x != null))
                 {
                     blockPosition = GetPosition(btr, blockScale);
                     if (blockPosition == null)
@@ -75,9 +98,20 @@ namespace Sheets.Program
                         System.Windows.MessageBox.Show("Не выбрано местоположение схемы.");
                         return;
                     }
+                    
+                }
+
+                if (Settings.Default.SelectPosition && references.Any(x => x != null))
+                {
                     //двигаем блоки
-                    foreach (BlockReference reference in references) reference.Position = blockPosition.Value;
-                } 
+                    foreach (BlockReference reference in references)
+                    {
+                        if (reference == null) continue;
+                        reference.Position = blockPosition.Value;
+                    }
+                   
+                }
+
 
                 tr.Commit();
             }
@@ -109,8 +143,7 @@ namespace Sheets.Program
             double headerHeight = Settings.Default.HeaderHeight / blockScale;
             //высота текста
             double fontHeigth = Settings.Default.FontHeight / blockScale;
-            //создаем слой фона
-            Support.CreateLayer(Names.BackgroundSheetsLayer, true, tr);
+            
 
             //область для определения центра блока и границы
             Extents3d extents = new Extents3d();
@@ -118,25 +151,29 @@ namespace Sheets.Program
             //получаем уникальное имя подложки
             string name;
             int i = 1;
-            while (bt.Has(name = $"{Names.BackgroundSheetsLayer}({i})")) continue;
+            while (bt.Has(name = $"{Names.BackgroundSheetsLayer}({i++})")) continue;
 
+            //создаем блок подложки
             BlockTableRecord btr = new BlockTableRecord() { Name = name };
-
             bt.Add(btr);
             tr.AddNewlyCreatedDBObject(btr, true);
 
+            //заполняем подложку экранами
             foreach (ViewportData data in viewports)
             {
                 data.ModelCurve = data.Viewport.GetViewportCurveInModel(tr, false, out _, out _, out _, out _);
 
                 Curve curve = data.ModelCurve.Clone() as Curve;
-
+                curve.Layer = Names.SheetsLayer;
+                curve.ColorIndex = 256;
+                curve.LineWeight = LineWeight.ByLayer;
                 btr.AppendEntity(curve);
                 tr.AddNewlyCreatedDBObject(curve, true);
 
                 extents.AddExtents(curve.GeometricExtents);
             }
 
+            //если не выбирается базовый вид определяем центр подложки и рисуем границу
             if (!Settings.Default.SelectPosition || Settings.Default.PositionType != PositionType.viewport)
             {
                 blockOriginPosition = extents.MinPoint + (extents.MaxPoint - extents.MinPoint) / 2;
@@ -144,8 +181,10 @@ namespace Sheets.Program
                 extents.AddPoint(extents.MinPoint - Vector3d.YAxis - Vector3d.XAxis);
                 extents.AddPoint(extents.MaxPoint + Vector3d.XAxis + Vector3d.YAxis);
 
+                //устанавливаем границу
                 Polyline polyline = extents.CreatePolylineFromExtents();
                 polyline.ColorIndex = 256;
+                polyline.LineWeight = LineWeight.ByLayer;
                 polyline.Layer = Names.BorderLayer;
                 polyline.LinetypeId = HostApplicationServices.WorkingDatabase.ContinuousLinetype;
 
@@ -153,6 +192,7 @@ namespace Sheets.Program
                 tr.AddNewlyCreatedDBObject(polyline, true);
             }
 
+            //устанавливаем загололвок
             MText header = new MText() 
             { 
                 TextHeight = headerHeight, 
@@ -161,18 +201,17 @@ namespace Sheets.Program
                 Contents = Settings.Default.Header,
                 Location = new Point3d((extents.MinPoint.X + extents.MaxPoint.X) / 2, extents.MaxPoint.Y, 0),
             };
-
             btr.AppendEntity(header);
             tr.AddNewlyCreatedDBObject(header, true);
 
+            //устанавлием центр подложки
             btr.Origin = blockOriginPosition;
 
+            //создаем блоки под каждый видовой экран
             foreach (ViewportData data in viewports)
             {
-                string viewportBlockName = ;
-
+                references.Add(Support.RecreateSheetBlock(data, btr, bt, tr, fontHeigth, blockScale));             
             }
-
 
             return btr;
         }

@@ -14,7 +14,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>   
+        </Grid.ColumnDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -48,18 +51,7 @@
                     <RadioButton  Margin="5" Grid.Row="2" Content="Видовой экран" Visibility="{Binding SettingsRef.SelectPosition, Converter={base:BoolToVisibleConverter}}" IsChecked="{Binding SettingsRef.PositionType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:PositionType.viewport}}"/>
                 </Grid>
             </GroupBox>
-            <GroupBox Header="Отображение" Grid.Row="3" Margin="5" >
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                 </Grid>
-            </GroupBox>
+           
             <GroupBox Header="Нумерация" Grid.Row="4" Margin="5" >
                 <Grid>
                     <Grid.RowDefinitions>
@@ -87,7 +79,54 @@
                 </Grid>
             </GroupBox>
         </Grid>
-        <Grid Grid.Row="1">
+        <GroupBox Header="Отображение" Grid.Row="0" Grid.Column="1" Margin="5" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Margin="5" Grid.Row="0" Text="Масштаб схем" />
+                <TextBox Margin="5" Grid.Row="1" Text="{Binding SettingsRef.Scale}"/>
+                <TextBlock Margin="5" Grid.Row="2" Text="Высота текста заголовка" />
+                <TextBox Margin="5" Grid.Row="3" Text="{Binding SettingsRef.HeaderHeight}"/>
+                <TextBlock Margin="5" Grid.Row="4" Text="Заголовок" />
+                <TextBox Margin="5" Grid.Row="5" Text="{Binding SettingsRef.Header}"/>
+                <TextBlock Margin="5" Grid.Row="6" Text="Высота текста названия листов" />
+                <TextBox Margin="5" Grid.Row="7" Text="{Binding SettingsRef.FontHeight}"/>
+                <TextBlock Margin="5" Grid.Row="8" Text="Префикс названия листов" />
+                <TextBox Margin="5" Grid.Row="9" Text="{Binding SettingsRef.Prefix}"/>
+                <TextBlock Margin="5" Grid.Row="10" Text="Масштаб штриховки" />
+                <TextBox Margin="5" Grid.Row="11" Text="{Binding SettingsRef.HatchScale}"/>
+                <TextBlock Margin="5" Grid.Row="12" Text="Угол поворота штриховки" />
+                <TextBox Margin="5" Grid.Row="13" Text="{Binding SettingsRef.HatchAngle}"/>
+                <Grid Grid.Row="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Выбрать штриховку" Margin="5" Command="{Binding GetHatchTypeCommand}"/>
+                    <TextBlock Margin="5" Grid.Column="1" Text="{Binding SettingsRef.HatchPattern}" />
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>

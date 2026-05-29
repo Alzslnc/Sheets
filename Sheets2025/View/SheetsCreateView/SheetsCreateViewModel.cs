@@ -20,16 +20,18 @@ namespace Sheets.View.SheetsCreateView
             GetBlockRefDatas();                   
             CloseCommand = new RelayCommand(_ => CloseCommandHandler((System.Windows.Window)_));
             CreateCommand = new RelayCommand(_ => CreateCommandHandler((System.Windows.Window)_));
+            GetHatchTypeCommand = new RelayCommand(_ => GetHatchTypeCommandHandler());
             SettingsRef.PropertyChanged += SettingsPropertyChanged;
+
         }
 
         private void GetBlockRefDatas()
         {
-            foreach (Support.BlockRefData blockRefData in Support.GetBlockRefDatas())
+            foreach (BlockRefData blockRefData in Support.GetBlockRefDatas())
             {
                 BlockRefDatas.Add(blockRefData);
             }
-            Support.BlockRefData refData = BlockRefDatas.FirstOrDefault(x => x.Name == SettingsRef.BlockName);
+            BlockRefData refData = BlockRefDatas.FirstOrDefault(x => x.Name == SettingsRef.BlockName);
             if (refData != null)
             {
                 SelectedBlockRefData = refData;
@@ -43,11 +45,15 @@ namespace Sheets.View.SheetsCreateView
                 ViewportLayers.Add(s);
             }
         }
-
+        public ICommand GetHatchTypeCommand { get; set; }
+        private void GetHatchTypeCommandHandler()
+        {
+            if (Support.GetHatchPattern(out string result)) SettingsRef.HatchPattern = result;
+        }
         public ICommand CreateCommand { get; set; }
         private void CreateCommandHandler(System.Windows.Window window)
         {
-            SettingsRef.BlockName = SelectedBlockRefData.Name;
+            SettingsRef.BlockName = SelectedBlockRefData != null ? SelectedBlockRefData.Name : "";
 
             if (SettingsRef.NumType == NumType.byReferenceAtteibute && (SelectedBlockRefData == null || string.IsNullOrEmpty(SettingsRef.AttributeName)))
             {
@@ -81,7 +87,7 @@ namespace Sheets.View.SheetsCreateView
         public bool BlockDataVisible { get => (SettingsRef.NumType == NumType.byReferenceAtteibute); set { Call(); } }
         public bool NumListShiftVisible { get => (SettingsRef.NumType == NumType.byList); set { Call(); } }
         public ObservableCollection<string> ViewportLayers { get; } = new ObservableCollection<string>();
-        public ObservableCollection<Support.BlockRefData> BlockRefDatas { get; } = new ObservableCollection<Support.BlockRefData>();
-        public Support.BlockRefData SelectedBlockRefData { get; set; } = null;
+        public ObservableCollection<BlockRefData> BlockRefDatas { get; } = new ObservableCollection<BlockRefData>();
+        public BlockRefData SelectedBlockRefData { get; set; } = null;
     }    
 }
