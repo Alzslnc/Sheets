@@ -7,38 +7,27 @@ using System.Linq;
 
 namespace Sheets.Program
 {
-    internal class SheetsCreateClass
+    internal static class SheetsCreateClass
     {
         internal static void Create()
         {
             try
             {
                 bool? result = Autodesk.AutoCAD.ApplicationServices.Application.ShowModalWindow(new View.SheetsCreateView.SheetsCreateView());
-                if (result.HasValue && result.Value)
-                {
-                    Settings.Save();
-                }
+                if (!result.HasValue || !result.Value) Settings.Load();
                 else
                 {
-                    Settings.Load();
-                    return;
+                    Settings.Save();
+                    CreateSheets();
                 }
-                if (Settings.Default.SelectPosition)
-                {
-                    if (!Support.InLayout(true)) return;
-                }
-                if (string.IsNullOrEmpty(Settings.Default.ViewportLayerName))
-                {
-                    System.Windows.MessageBox.Show("Не выбран слой на котором находятся видовые экраны для создания схемы.");
-                    return;
-                }
-                CreateSheets();
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.Message);
             }
         }
+
+       
 
         private static void CreateLayers(Transaction tr)
         {
@@ -52,15 +41,22 @@ namespace Sheets.Program
             Support.CreateLayer(Names.SheetsLayer, true, tr);
             //создаем слой фона
             Support.CreateLayer(Names.CurrentObjectsLayer, true, tr);
-        }
-
-        private static void CreateSheets()
-        {            
+        }    
+        public static void CreateSheets()
+        {
+            if (Settings.Default.SelectPosition)
+            {
+                if (!Support.InLayout(true)) return;
+            }
+            if (string.IsNullOrEmpty(Settings.Default.ViewportLayerName))
+            {
+                System.Windows.MessageBox.Show("Не выбран слой на котором находятся видовые экраны для создания схемы.");
+                return;
+            }
             using (Transaction tr = HostApplicationServices.WorkingDatabase.TransactionManager.StartTransaction())
             {
-
                 CreateLayers(tr);
-                BlockTable bt = tr.GetObject(HostApplicationServices.WorkingDatabase.BlockTableId, OpenMode.ForWrite) as BlockTable;
+                BlockTable bt = tr.GetObject(HostApplicationServices.WorkingDatabase.BlockTableId, OpenMode.ForWrite) as BlockTable;              
                 //исходные данные для создания схем
                 Point3d? blockPosition = Point3d.Origin;
                 Point3d blockOriginPosition = Point3d.Origin;
@@ -148,16 +144,27 @@ namespace Sheets.Program
             //область для определения центра блока и границы
             Extents3d extents = new Extents3d();
 
-            //получаем уникальное имя подложки
-            string name;
-            int i = 1;
-            while (bt.Has(name = $"{Names.BackgroundSheetsLayer}({i++})")) continue;
-
-            //создаем блок подложки
-            BlockTableRecord btr = new BlockTableRecord() { Name = name };
-            bt.Add(btr);
-            tr.AddNewlyCreatedDBObject(btr, true);
-
+            //Блок подложки
+            BlockTableRecord btr;
+            
+            //получаем имя подложки
+            string name = $"{Names.BackgroundSheetsLayer}({Settings.Default.ViewportLayerName})";
+            if (bt.Has(name))
+            {
+                btr = tr.GetObject(bt[name], OpenMode.ForWrite) as BlockTableRecord;
+                foreach (ObjectId id in btr)
+                {
+                    Entity entity = tr.GetObject(id, OpenMode.ForWrite, false, true) as Entity;
+                    entity?.Erase();
+                }
+            }
+            else
+            {
+                btr = new BlockTableRecord() { Name = name };
+                bt.Add(btr);
+                tr.AddNewlyCreatedDBObject(btr, true);
+            }
+         
             //заполняем подложку экранами
             foreach (ViewportData data in viewports)
             {
@@ -215,6 +222,7 @@ namespace Sheets.Program
 
             return btr;
         }
-       
+
+        
     }
 }

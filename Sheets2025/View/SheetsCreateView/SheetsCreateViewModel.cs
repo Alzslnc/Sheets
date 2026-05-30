@@ -1,12 +1,7 @@
-﻿using Autodesk.AutoCAD.Windows.Data;
-using BaseFunction;
-using System;
-using System.Collections.Generic;
+﻿using BaseFunction;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Sheets.View.SheetsCreateView
@@ -44,11 +39,11 @@ namespace Sheets.View.SheetsCreateView
             {
                 ViewportLayers.Add(s);
             }
-        }
+        }   
         public ICommand GetHatchTypeCommand { get; set; }
         private void GetHatchTypeCommandHandler()
         {
-            if (Support.GetHatchPattern(out string result)) SettingsRef.HatchPattern = result;
+            if (F.GetHatchPattern(out string result, Settings.Default.HatchPattern)) SettingsRef.HatchPattern = result;
         }
         public ICommand CreateCommand { get; set; }
         private void CreateCommandHandler(System.Windows.Window window)
@@ -62,7 +57,7 @@ namespace Sheets.View.SheetsCreateView
             }
 
             window.DialogResult = true;
-            window.Close();
+            window.Close();           
         }
         public ICommand CloseCommand { get; set; }
         private static void CloseCommandHandler(System.Windows.Window window)

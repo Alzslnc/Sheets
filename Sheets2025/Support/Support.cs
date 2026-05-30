@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Markup;
@@ -282,8 +283,6 @@ namespace Sheets
                         }                        
                     }
                 }
-
-                int i12 = 0;
             }
 
             return result;
@@ -325,37 +324,7 @@ namespace Sheets
             return result.OrderBy(x => x.Name);
         }
 
-        [DllImport("acad.exe", EntryPoint = "?acedHatchPalletteDialog@@YA_NPEB_W_NAEAPEA_W@Z",CharSet = CharSet.Auto)]
-
-        static extern bool acedHatchPalletteDialog(string currentPattern,bool showcustom,out IntPtr newpattern);
-       
-        internal static bool GetHatchPattern(out string hatchType)
-        {
-            hatchType = string.Empty;
-                        
-            try
-            {
-                string sHatchType = Settings.Default.HatchPattern;
-
-                IntPtr ptr;
-
-                bool bRet = false;
-
-                bRet = acedHatchPalletteDialog(sHatchType, true, out ptr);
-
-                if (bRet)
-                {
-                    string sNewHatchType = Marshal.PtrToStringAuto(ptr);
-
-                    if (sNewHatchType.Length > 0) hatchType = sNewHatchType;
-
-                    return true;
-                }
-            }
-            catch { }
-
-            return false;
-        }
+      
         internal static BlockReference? RecreateSheetBlock(ViewportData data, BlockTableRecord btr, BlockTable bt, Transaction tr, double textHeight, double scale)
         {
             //название блока
@@ -373,7 +342,7 @@ namespace Sheets
                 }
             }
             else
-            { 
+            {     
                 newBlock = true;
                 newBtr = new BlockTableRecord() { Name = viewportBlockName };
                 bt.Add(newBtr);
@@ -381,7 +350,7 @@ namespace Sheets
             }
 
             //если блок новый то устанавливаем центр
-            if (newBlock) newBtr.Origin = btr.Origin;
+            newBtr.Origin = btr.Origin;
 
             //добавляем подложку
             BlockReference background = new BlockReference(btr.Origin, btr.Id) { Layer = Names.SheetsLayer, ColorIndex = 256, LineWeight = LineWeight.ByLayer };
@@ -447,16 +416,29 @@ namespace Sheets
             hatch.AppendLoop(HatchLoopTypes.External, new ObjectIdCollection { curve.Id });
             if (circle != null) hatch.AppendLoop(HatchLoopTypes.Outermost, new ObjectIdCollection { circle.Id });
 
+            BlockReference reference = null;
             if (newBlock)
             {
-                BlockReference reference = new BlockReference(data.Viewport.CenterPoint, newBtr.Id);
-                reference.ScaleFactors = new Scale3d(scale);
+                reference = new BlockReference(data.Viewport.CenterPoint, newBtr.Id);
                 data.Owner.AppendEntity(reference);
                 tr.AddNewlyCreatedDBObject(reference, true);
                 return reference;
             }
+            else
+            {
+                foreach (ObjectId id in newBtr.GetBlockReferenceIds(true, false))
+                { 
+                    reference = tr.GetObject(id, OpenMode.ForWrite, false, true) as BlockReference;
+                    break;
+                }
+            }
 
-            return null;
+            if (reference != null)
+            {
+                reference.ScaleFactors = new Scale3d(scale);                
+            }
+
+            return reference;
 
         }
     }
@@ -464,6 +446,10 @@ namespace Sheets
     {
         public string Name { get; set; } = string.Empty;
         public ObservableCollection<string> Attributes { get; } = new ObservableCollection<string>();
+        public override string ToString()
+        {
+            return Name;
+        }
     }
     public class ViewportData
     {

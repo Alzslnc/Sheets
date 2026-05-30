@@ -66,16 +66,19 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <RadioButton  Margin="5" Grid.Row="0" Content="По порядку" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.none}}"/>
-                    <RadioButton  Margin="5" Grid.Row="1" Content="По номеру листа" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.byList}}"/>
-                    <RadioButton  Margin="5" Grid.Row="2" Content="По атрибуту блока" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.byReferenceAtteibute}}"/>
-                    <TextBlock Margin="5" Grid.Row="3" Text="Смещение номера" Visibility="{Binding NumListShiftVisible, Converter={base:BoolToVisibleConverter}}"/>
-                    <TextBox Margin="5" Grid.Row="4" Text="{Binding SettingsRef.NumListShift}" Visibility="{Binding NumListShiftVisible, Converter={base:BoolToVisibleConverter}}"/>
-                    <TextBlock Margin="5" Grid.Row="5" Text="Название блока" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
-                    <ComboBox Margin="5" Grid.Row="6" ItemsSource="{Binding BlockRefDatas}" SelectedItem="{Binding SelectedBlockRefData.Name}" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
-                    <TextBlock Margin="5" Grid.Row="7" Text="Атрибут" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
-                    <ComboBox Margin="5" Grid.Row="8" ItemsSource="{Binding SelectedBlockRefData.Attributes}" SelectedItem="{Binding SettingsRef.AttributeName}" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <RadioButton  Margin="5" Grid.Row="0" Content="Без нумерации" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.none}}"/>
+                    <RadioButton  Margin="5" Grid.Row="1" Content="По порядку" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.order}}"/>
+                    <RadioButton  Margin="5" Grid.Row="2" Content="По номеру листа" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.byList}}"/>
+                    <RadioButton  Margin="5" Grid.Row="3" Content="По атрибуту блока" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.byReferenceAtteibute}}"/>
+                    <TextBlock Margin="5" Grid.Row="4" Text="Смещение номера" Visibility="{Binding NumListShiftVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <TextBox Margin="5" Grid.Row="5" Text="{Binding SettingsRef.NumListShift}" Visibility="{Binding NumListShiftVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <TextBlock Margin="5" Grid.Row="6" Text="Название блока" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <ComboBox Margin="5" Grid.Row="7" ItemsSource="{Binding BlockRefDatas}" SelectedItem="{Binding SelectedBlockRefData.Name}" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <TextBlock Margin="5" Grid.Row="8" Text="Атрибут" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <ComboBox Margin="5" Grid.Row="9" ItemsSource="{Binding SelectedBlockRefData.Attributes}" SelectedItem="{Binding SettingsRef.AttributeName}" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
                 </Grid>
             </GroupBox>
         </Grid>
