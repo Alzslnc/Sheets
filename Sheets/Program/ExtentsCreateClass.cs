@@ -2,6 +2,8 @@
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Runtime;
 using BaseFunction;
+using Sheets.App;
+using Sheets.AppSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -237,7 +239,7 @@ namespace Sheets.Program
             return toModelSpace;
         }       
 
-        private static ObjectId GetExtentBlockId(string name, Transaction tr, double width, double height, Curve? polyline)
+        private static ObjectId GetExtentBlockId(string name, Transaction tr, double width, double height, Curve polyline)
         {
             //получаем таблицу блоков
             BlockTable bt = tr.GetObject(HostApplicationServices.WorkingDatabase.BlockTableId, OpenMode.ForWrite, false, true) as BlockTable;

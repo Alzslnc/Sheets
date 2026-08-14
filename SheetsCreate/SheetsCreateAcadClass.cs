@@ -540,13 +540,13 @@ namespace Sheets
             else if (first) name += i.ToString();
 
             //если такое имя уже используется то составляем имя со стелующим номером
-            while (Names.Contains(name))
+            while (AppConstants.Contains(name))
             { 
                 name = prefix + i++.ToString();
             }
             
             //додбавляем имя в список
-            Names.Add(name);
+            AppConstants.Add(name);
             //возвращаем новое имя
             return name.Trim();            
         }

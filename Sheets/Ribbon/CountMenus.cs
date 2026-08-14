@@ -1,0 +1,10 @@
+﻿namespace Sheets.Ribbon
+{
+    internal class CountMenus
+    {
+        public static void CreateCountMenus()
+        {
+
+        }
+    }
+}

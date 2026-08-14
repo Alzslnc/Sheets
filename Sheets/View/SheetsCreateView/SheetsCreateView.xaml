@@ -1,0 +1,141 @@
+﻿<Window x:Class="Sheets.View.SheetsCreateView.SheetsCreateView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Sheets.View.SheetsCreateView"
+        xmlns:base="clr-namespace:BaseFunction"        
+        xmlns:ml="clr-namespace:Sheets"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:SheetsCreateViewModel, IsDesignTimeCreatable=True}"
+        Title="SheetsCreateView" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>   
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>         
+            </Grid.RowDefinitions>
+            <TextBlock Text="Слой с видовыми экранами" Margin="5"/>
+            <ComboBox ItemsSource="{Binding ViewportLayers}" SelectedItem="{Binding SettingsRef.ViewportLayerName}" Margin="5" Grid.Row="1"/>
+            
+            <GroupBox Header="Положение" Grid.Row="2" Margin="5" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>  
+                    </Grid.RowDefinitions>
+                    <CheckBox Margin="5" Content="Выбирать положение схемы" IsChecked="{Binding SettingsRef.SelectPosition}" />
+                    <RadioButton  Margin="5" Grid.Row="1" Content="Выбрать место" Visibility="{Binding SettingsRef.SelectPosition, Converter={base:BoolToVisibleConverter}}" IsChecked="{Binding SettingsRef.PositionType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:PositionType.point}}"/>
+                    <RadioButton  Margin="5" Grid.Row="2" Content="Видовой экран" Visibility="{Binding SettingsRef.SelectPosition, Converter={base:BoolToVisibleConverter}}" IsChecked="{Binding SettingsRef.PositionType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:PositionType.viewport}}"/>
+                </Grid>
+            </GroupBox>
+           
+            <GroupBox Header="Нумерация" Grid.Row="4" Margin="5" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <RadioButton  Margin="5" Grid.Row="0" Content="Без нумерации" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.none}}"/>
+                    <RadioButton  Margin="5" Grid.Row="1" Content="По порядку" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.order}}"/>
+                    <RadioButton  Margin="5" Grid.Row="2" Content="По номеру листа" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.byList}}"/>
+                    <RadioButton  Margin="5" Grid.Row="3" Content="По атрибуту блока" IsChecked="{Binding SettingsRef.NumType, Converter={base:EnumConverter}, ConverterParameter={x:Static ml:NumType.byReferenceAtteibute}}"/>
+                    <TextBlock Margin="5" Grid.Row="4" Text="Смещение номера" Visibility="{Binding NumListShiftVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <TextBox Margin="5" Grid.Row="5" Text="{Binding SettingsRef.NumListShift}" Visibility="{Binding NumListShiftVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <TextBlock Margin="5" Grid.Row="6" Text="Название блока" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <ComboBox Margin="5" Grid.Row="7" ItemsSource="{Binding BlockRefDatas}" SelectedItem="{Binding SelectedBlockRefData.Name}" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <TextBlock Margin="5" Grid.Row="8" Text="Атрибут" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                    <ComboBox Margin="5" Grid.Row="9" ItemsSource="{Binding SelectedBlockRefData.Attributes}" SelectedItem="{Binding SettingsRef.AttributeName}" Visibility="{Binding BlockDataVisible, Converter={base:BoolToVisibleConverter}}"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <GroupBox Header="Отображение" Grid.Row="0" Grid.Column="1" Margin="5" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Margin="5" Grid.Row="0" Text="Масштаб схем" />
+                <TextBox Margin="5" Grid.Row="1" Text="{Binding SettingsRef.Scale}"/>
+                <TextBlock Margin="5" Grid.Row="2" Text="Высота текста заголовка" />
+                <TextBox Margin="5" Grid.Row="3" Text="{Binding SettingsRef.HeaderHeight}"/>
+                <TextBlock Margin="5" Grid.Row="4" Text="Заголовок" />
+                <TextBox Margin="5" Grid.Row="5" Text="{Binding SettingsRef.Header}"/>
+                <TextBlock Margin="5" Grid.Row="6" Text="Высота текста названия листов" />
+                <TextBox Margin="5" Grid.Row="7" Text="{Binding SettingsRef.FontHeight}"/>
+                <TextBlock Margin="5" Grid.Row="8" Text="Префикс названия листов" />
+                <TextBox Margin="5" Grid.Row="9" Text="{Binding SettingsRef.Prefix}"/>
+                <TextBlock Margin="5" Grid.Row="10" Text="Масштаб штриховки" />
+                <TextBox Margin="5" Grid.Row="11" Text="{Binding SettingsRef.HatchScale}"/>
+                <TextBlock Margin="5" Grid.Row="12" Text="Угол поворота штриховки" />
+                <TextBox Margin="5" Grid.Row="13" Text="{Binding SettingsRef.HatchAngle}"/>
+                <Grid Grid.Row="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Выбрать штриховку" Margin="5" Command="{Binding GetHatchTypeCommand}"/>
+                    <TextBlock Margin="5" Grid.Column="1" Text="{Binding SettingsRef.HatchPattern}" />
+                </Grid>
+            </Grid>
+        </GroupBox>
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Создать" Margin="5" Command="{Binding CreateCommand}" CommandParameter="{Binding RelativeSource = {RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+            <Button Content="Отменить" Grid.Column="1" Margin="5" Command="{Binding CloseCommand}" CommandParameter="{Binding RelativeSource = {RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+        </Grid>
+    </Grid>
+</Window>

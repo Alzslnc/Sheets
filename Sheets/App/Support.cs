@@ -1,21 +1,15 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Internal;
 using Autodesk.AutoCAD.Runtime;
 using BaseFunction;
+using Sheets.AppSettings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Markup;
-using System.Windows.Media.Media3D;
 
-namespace Sheets
+namespace Sheets.App
 {
     internal static class Support
     {
@@ -277,7 +271,7 @@ namespace Sheets
 
                             reference.BlockReferenceGetAttribute(out Dictionary<string, string> keyValuePairs, tr, tags, false);
 
-                            if (keyValuePairs.TryGetValue(Settings.Default.AttributeName, out string? value)) viewportData.Name = value;
+                            if (keyValuePairs.TryGetValue(Settings.Default.AttributeName, out string value)) viewportData.Name = value;
 
                             break;
                         }                        
@@ -325,7 +319,7 @@ namespace Sheets
         }
 
       
-        internal static BlockReference? RecreateSheetBlock(ViewportData data, BlockTableRecord btr, BlockTable bt, Transaction tr, double textHeight, double scale)
+        internal static BlockReference RecreateSheetBlock(ViewportData data, BlockTableRecord btr, BlockTable bt, Transaction tr, double textHeight, double scale)
         {
             //название блока
             string viewportBlockName = $"{AppConstants.SheetsLayer}_{data.Viewport.Handle}";

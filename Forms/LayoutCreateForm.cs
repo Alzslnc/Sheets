@@ -22,7 +22,7 @@ namespace Sheets
 
             TextBox_NewLayoutName.Text = Settings.Default.LC_LayoutName;
 
-            Combo_Layouts.Items.AddRange(ActionClass.LayoutNames.ToArray());
+            Combo_Layouts.Items.AddRange(ActionClass.LayoutAppConstants.ToArray());
             if (Combo_Layouts.Items.Count > 0) Combo_Layouts.SelectedIndex = 0;
 
             Check_LOCreate.Checked = Settings.Default.LC_LOCreate;

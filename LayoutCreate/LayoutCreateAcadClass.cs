@@ -164,7 +164,7 @@ namespace Sheets
             Name = "!_New_Viewport_set_";
 
             int i = 1;
-            while (LayerNames.Contains(Name + i)) i++;
+            while (LayerAppConstants.Contains(Name + i)) i++;
 
             Name += i;
 
@@ -324,7 +324,7 @@ namespace Sheets
                         using (Layout layout = tr.GetObject(dde.Value, OpenMode.ForRead) as Layout)
                         {
                             if (layout.LayoutName == "Model") continue;
-                            LayoutNames.Add(layout.LayoutName);
+                            LayoutAppConstants.Add(layout.LayoutName);
                             LayoutClasses.Add(new LayoutClass(layout));
                         }
                     }
@@ -520,7 +520,7 @@ namespace Sheets
                 string loIName = Settings.Default.LC_LayoutName;
                 string loname = loIName;
                 int k = 0;
-                while (LayoutNames.Contains(loname + "(1)") || LayoutNames.Contains(loname + "(2)"))
+                while (LayoutAppConstants.Contains(loname + "(1)") || LayoutAppConstants.Contains(loname + "(2)"))
                 {
                     k++;
                     loname = loIName + "_" + k;
@@ -533,12 +533,12 @@ namespace Sheets
                 {
                     foreach (FutureViewport cur in FutureViewports)
                     {
-                        while (LayoutNames.Contains(cloname))
+                        while (LayoutAppConstants.Contains(cloname))
                         {
                             k++;
                             cloname = loname + "(" + k + ")";
                         }
-                        LayoutNames.Add(cloname);
+                        LayoutAppConstants.Add(cloname);
 
                         try
                         {
@@ -699,7 +699,7 @@ namespace Sheets
             if (string.IsNullOrEmpty(LNCName)) LNC = false;
             int i = 0;
             string nname = LNCName;
-            while (LayoutNames.Contains(nname))
+            while (LayoutAppConstants.Contains(nname))
             {
                 i++;
                 nname = LNCName + "_" + i;
