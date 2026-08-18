@@ -178,12 +178,8 @@ namespace Sheets.Program
                                 //устанавливаем слой
                                 newViewport.Layer = layerName;
 
-                                //разворачиваем
-                                if (block.Rotation != 0)
-                                {                                                                    
-                                    //разворачиваем видовой экран по блоку
-                                    newViewport.TwistAngle -= block.Rotation;
-                                }
+                                // Разворачиваем видовой экран (скручивание в противоположную сторону)
+                                newViewport.TwistAngle = (2 * Math.PI - block.Rotation) % (2 * Math.PI);
 
                                 //устанавливаем вид
                                 newViewport.ViewTarget = block.Position;
